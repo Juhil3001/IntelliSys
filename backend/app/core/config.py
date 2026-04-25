@@ -14,8 +14,12 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg2://postgres:password@127.0.0.1:5432/intellisys"
     # Comma-separated; include 127.0.0.1 and localhost (browser treats them as different Origins)
     cors_origins: str = "http://localhost:4200,http://127.0.0.1:4200"
-    # Any dev host/port on these hosts (e.g. :4300) — see main.py CORS; empty = disabled
-    cors_origin_regex: str = r"^https?://(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?$"
+    # Matches local dev OR any Render static/web *.onrender.com (HTTPS). Set to "" to disable regex.
+    # For a custom domain front-end, add its exact https:// origin to cors_origins above.
+    cors_origin_regex: str = (
+        r"(^https?://(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?$)|"
+        r"(^https://[a-zA-Z0-9.-]+\.onrender\.com$)"
+    )
     openai_api_key: str = ""
     automation_webhook_secret: str = "change-me-in-production"
     log_level: str = "INFO"
