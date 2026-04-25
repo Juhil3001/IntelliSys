@@ -18,6 +18,8 @@ System-level developer intelligence: scan code, track APIs, monitor calls, diff 
 
 ## Backend
 
+**If `pip install -r requirements.txt` fails with “Could not open requirements file”:** run it from the `backend/` folder, or from the repo root (there is a root `requirements.txt` that includes `backend/requirements.txt`).
+
 ```text
 cd backend
 python -m pip install -r requirements.txt
