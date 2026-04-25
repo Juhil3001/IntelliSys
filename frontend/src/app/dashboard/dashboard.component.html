@@ -1,92 +1,201 @@
-<h2>Dashboard</h2>
-<p class="muted">API health: <strong>{{ healthStatus }}</strong></p>
-
-<div class="card">
-  <h3>Connect project</h3>
-  <p class="muted">
-    Register a <strong>local path</strong> (same machine as the API), a <strong>GitHub</strong> repo, or both. For
-    private GitHub repos, set <code>GITHUB_TOKEN</code> in the server <code>backend/.env</code>.
-  </p>
-  <div class="row">
-    <label>Name <input [(ngModel)]="projectName" placeholder="App name" /></label>
-  </div>
-  <div class="row">
-    <label
-      >Local root path
-      <input [(ngModel)]="rootPath" class="wide" placeholder="C:\path\to\repo (optional if using GitHub only)" />
-    </label>
-  </div>
-  <div class="row">
-    <label
-      >GitHub URL
-      <input
-        [(ngModel)]="githubUrl"
-        class="wide"
-        placeholder="https://github.com/org/repo (optional)"
+<div class="monitor-page">
+  <!-- Health banner -->
+  <div class="health-banner">
+    <div class="hb-left">
+      <span class="hb-dot-wrap">
+        <span class="hb-dot" [class.live]="systemLive" [class.dead]="!systemLive && healthLabel === 'offline'"></span>
+        <span *ngIf="systemLive" class="hb-ping" aria-hidden="true"></span>
+      </span>
+      <span class="hb-label" [class.live]="systemLive">{{ systemLive ? 'System Live' : (healthLabel === 'offline' ? 'API Offline' : 'Degraded') }}</span>
+    </div>
+    <div class="hb-vsep"></div>
+    <svg class="hb-ecg" viewBox="0 0 400 32" preserveAspectRatio="none" aria-hidden="true">
+      <polyline
+        class="hb-ecg-line"
+        points="0,20 20,20 30,8 40,20 50,20 60,20 70,5 80,20 100,20 120,8 128,8 140,20 160,20 175,2 192,20 210,20 220,5 240,20 255,5 280,20 300,8 320,20 340,5 360,20 400,20"
+        fill="none"
+        stroke="#7C3AED"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        opacity="0.85"
       />
-    </label>
+    </svg>
+    <div class="hb-pills">
+      <span class="hb-pill"
+        ><span class="v">{{ mEndpoints }}</span> <span class="l">APIs</span></span
+      >
+      <span class="hb-pill issue-pill"
+        ><span class="v err">{{ mIssueTotal }}</span> <span class="l">Issues</span></span
+      >
+      <span class="hb-pill"
+        ><span class="v">{{ mAvgLabel }}</span> <span class="l">Avg</span></span
+      >
+    </div>
   </div>
-  <div class="row" *ngIf="githubUrl.trim()">
-    <label>Default branch <input [(ngModel)]="defaultBranch" placeholder="main" /></label>
+
+  <!-- Metric cards -->
+  <div class="metric-grid" *ngIf="projectId != null; else noProjMetrics">
+    <div class="metric-card" [class.metric-anim]="metricsReady" style="--accent: #7c3aed">
+      <div class="metric-body">
+        <div class="metric-label">Total Endpoints</div>
+        <div class="metric-value" style="color: #7c3aed">{{ mEndpoints }}</div>
+        <div class="metric-trend up">▲ 12% <span class="dim">vs last week</span></div>
+        <svg class="spark" viewBox="0 0 60 22" preserveAspectRatio="none" aria-hidden="true">
+          <polyline
+            class="sp-line"
+            points="0,18 8,12 16,16 24,4 32,8 40,2 50,6 60,10"
+            fill="none"
+            stroke="#7c3aed"
+            stroke-width="1.2"
+            opacity="0.7"
+          />
+        </svg>
+      </div>
+    </div>
+    <div class="metric-card" [class.metric-anim]="metricsReady" style="--accent: #f85149">
+      <div class="metric-body">
+        <div class="metric-label">Dead APIs</div>
+        <div class="metric-value" style="color: #f85149">{{ mDead }}</div>
+        <div class="metric-trend" [class.up]="mDead > 0" [class.ok]="mDead === 0">
+          <ng-container *ngIf="mDead > 0">▲ open</ng-container
+          ><ng-container *ngIf="mDead === 0">— <span class="dim">none</span></ng-container>
+        </div>
+        <svg class="spark" viewBox="0 0 60 22" preserveAspectRatio="none" aria-hidden="true">
+          <polyline class="sp-line" points="0,6 20,4 32,8 50,2 60,5" fill="none" stroke="#f85149" stroke-width="1.2" opacity="0.7" />
+        </svg>
+      </div>
+    </div>
+    <div class="metric-card" [class.metric-anim]="metricsReady" style="--accent: #f59e0b">
+      <div class="metric-body">
+        <div class="metric-label">Slow Endpoints</div>
+        <div class="metric-value" style="color: #f59e0b">{{ mSlow }}</div>
+        <div class="metric-trend" [class.ok]="mSlow > 0">▼2 <span class="dim" *ngIf="mSlow > 0">improved</span><span *ngIf="mSlow === 0" class="dim">all clear</span></div>
+        <svg class="spark" viewBox="0 0 60 22" preserveAspectRatio="none" aria-hidden="true">
+          <polyline class="sp-line" points="0,2 10,8 24,4 40,10 50,3 60,8" fill="none" stroke="#f59e0b" stroke-width="1.2" opacity="0.7" />
+        </svg>
+      </div>
+    </div>
+    <div class="metric-card" [class.metric-anim]="metricsReady" style="--accent: #14b8a6">
+      <div class="metric-body">
+        <div class="metric-label">Breaking Changes</div>
+        <div class="metric-value" style="color: #14b8a6">{{ mChange }}</div>
+        <div class="metric-trend down">▼1 <span class="dim" *ngIf="mChange > 0">to resolve</span><span *ngIf="mChange === 0" class="dim">none</span></div>
+        <svg class="spark" viewBox="0 0 60 22" preserveAspectRatio="none" aria-hidden="true">
+          <polyline class="sp-line" points="0,10 15,4 30,8 45,2 60,6" fill="none" stroke="#14b8a6" stroke-width="1.2" opacity="0.7" />
+        </svg>
+      </div>
+    </div>
   </div>
-  <button class="primary" (click)="createProject()" [disabled]="busy || !canRegister">Register project</button>
-  <p *ngIf="lastAction && lastAction.startsWith('Created project')" class="muted reg-hint">
-    {{ lastAction }} — use that number as <code>project_id</code> in the n8n JSON body
-    (<code>daily_scan</code> / <code>full_scan</code>).
-  </p>
-</div>
+  <ng-template #noProjMetrics>
+    <p class="no-proj-hint">
+      Select a project on
+      <a routerLink="/projects" class="inline-link">Projects</a> to see metrics and the monitor. Run
+      <a routerLink="/actions" class="inline-link">Actions</a> for scans and AI.
+    </p>
+  </ng-template>
 
-<div class="card" *ngIf="projects.length">
-  <h3>Projects</h3>
-  <ul class="plist">
-    <li *ngFor="let p of projects">
-      <button type="button" class="linkish" (click)="useProject(p.id)">#{{ p.id }} — {{ p.name }}</button>
-      <span class="muted" *ngIf="p.github_repo_url">{{ p.github_repo_url }} · </span>
-      <span class="muted mono">{{ p.root_path }}</span>
-    </li>
-  </ul>
-  <p *ngIf="projectId != null" class="project-id-line">
-    Active project <strong>project_id</strong> (for n8n and API):
-    <strong>{{ projectId }}</strong>
-  </p>
-  <p *ngIf="projectId != null" class="muted n8n-line">
-    Example webhook body: <code>{{ n8nBodyExample }}</code>
-  </p>
-</div>
-
-<div class="card" *ngIf="activeProject as ap">
-  <h3>Active project</h3>
-  <p *ngIf="ap.github_repo_url" class="meta-line">
-    <strong>GitHub:</strong> {{ ap.github_repo_url }} ({{ ap.default_branch || 'main' }})
-  </p>
-  <p *ngIf="ap.last_commit_sha" class="meta-line">
-    <strong>Last commit:</strong> <code>{{ ap.last_commit_sha | slice: 0:7 }}…</code>
-  </p>
-  <p *ngIf="ap.last_sync_at" class="meta-line">
-    <strong>Last sync:</strong> {{ ap.last_sync_at | date: 'medium' }}
-  </p>
-  <p *ngIf="!ap.github_repo_url" class="muted">Local project — scanning uses the path above.</p>
-</div>
-
-<div class="card">
-  <h3>Actions</h3>
-  <div class="actions">
-    <button class="primary" (click)="runScan()" [disabled]="busy || projectId == null">Run scan</button>
-    <button
-      class="primary"
-      (click)="fullSyncAndScan()"
-      [disabled]="busy || projectId == null || !activeProject?.github_repo_url"
-      title="Git sync + full scan + recompute + snapshot"
-    >
-      Sync &amp; full scan (Git)
-    </button>
-    <button class="primary" (click)="recompute()" [disabled]="busy || projectId == null">Recompute issues</button>
-    <button class="primary" (click)="generateAi()" [disabled]="busy || projectId == null">Generate AI insight</button>
+  <!-- Quick alerts -->
+  <div *ngIf="projectId != null" class="alert-quick surface">
+    <div class="aq-head">
+      <h2 class="section-kicker" style="margin: 0">Open alerts</h2>
+      <a routerLink="/alerts" class="inline-link small-link">View all</a>
+    </div>
+    <p *ngIf="!quickAlerts.length" class="text-muted" style="margin: 0; font-size: 0.85rem">No open alerts. Recompute on Actions after traffic.</p>
+    <ul class="aq-list" *ngIf="quickAlerts.length">
+      <li *ngFor="let a of quickAlerts" class="aq-item">
+        <span class="aq-sev" [ngClass]="'sev-' + (a.severity || 'medium')">{{ a.severity }}</span>
+        <span class="aq-body">{{ a.description }}</span>
+      </li>
+    </ul>
   </div>
-  <p *ngIf="lastAction" class="muted">{{ lastAction }}</p>
-</div>
 
-<div class="card" *ngIf="aiSummary">
-  <h3>Latest AI insight</h3>
-  <pre class="raw">{{ aiSummary }}</pre>
+  <!-- Table -->
+  <h2 class="section-kicker" *ngIf="projectId != null">Live API monitor</h2>
+  <div class="table-wrap" *ngIf="projectId != null; else noTable">
+    <table class="api-table" *ngIf="monitorRows.length; else noEndpoints">
+      <thead>
+        <tr>
+          <th>Endpoint</th>
+          <th>Method</th>
+          <th>Response</th>
+          <th>Status</th>
+          <th>Last check</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of monitorRows" class="api-row">
+          <td class="td-endpoint"><code>{{ r.endpoint }}</code></td>
+          <td>
+            <span class="m-badge" [ngClass]="methodBadgeClass(r.method)">{{ r.method }}</span>
+          </td>
+          <td>
+            <div class="resp-cell">
+              <div class="resp-bar" aria-hidden="true">
+                <div
+                  class="resp-fill"
+                  [style.width.%]="r.status === 'dead' ? 0 : r.responsePct"
+                  [ngClass]="'st-' + r.status"
+                ></div>
+              </div>
+              <span class="resp-lbl">{{ r.responseLabel }}</span>
+            </div>
+          </td>
+          <td>
+            <span class="st-badge" [ngClass]="'stb-' + r.status">
+              <span class="st-dot" *ngIf="r.status === 'healthy'"></span>
+              <span *ngIf="r.status === 'healthy'">Healthy</span>
+              <span *ngIf="r.status === 'degraded'">Degraded</span>
+              <span *ngIf="r.status === 'dead'">Dead</span>
+            </span>
+          </td>
+          <td class="td-meta">{{ r.lastCheck }}</td>
+          <td>
+            <a routerLink="/chat" class="explain-btn" title="Open AI chat to explain this endpoint">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"
+                ><circle cx="12" cy="12" r="9" /><path d="M9 9h.01M15 9h.01M8 14a4 4 0 0 0 8 0" />
+              </svg>
+              Explain
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <ng-template #noEndpoints>
+      <p class="empty-tbl">No API routes yet — run a <a routerLink="/actions" class="inline-link">scan</a> from Actions after a successful project setup.</p>
+    </ng-template>
+  </div>
+  <ng-template #noTable></ng-template>
+
+  <!-- AI insight -->
+  <div class="ai-card" *ngIf="projectId != null">
+    <div class="ai-hdr">
+      <div class="ai-ico" aria-hidden="true">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+          <path d="M12 3l1.5 4.5H18l-4 3 1.5 4.5L12 16l-3.5 2.5L10 14l-4-3h4.5L12 3z" />
+        </svg>
+      </div>
+      <span class="ai-title">AI Insight</span>
+      <span class="ai-pill">Live Analysis</span>
+    </div>
+    <ng-container *ngIf="!aiSummary; else aiText">
+      <p class="ai-q">Why did <code class="ai-code-path">{{ aiQuestionEndpoint }}</code> slow down?</p>
+      <p class="ai-a">
+        <strong>Root cause:</strong> example only — use
+        <a routerLink="/actions" class="inline-link">Actions → AI insight</a> for your project. You can also run
+        <button type="button" class="link-btn" (click)="generateAi()">generate insight from here</button>
+        <span class="ai-cursor" aria-hidden="true"></span>
+      </p>
+      <div class="diff-blk" aria-label="Example fix">
+        <div class="diff-g">-- recommended migration</div>
+        <div class="diff-r">- SELECT * FROM users ORDER BY created_at</div>
+        <div class="diff-g">+ CREATE INDEX idx_users_created ON users(created_at);</div>
+        <div class="diff-g">+ SELECT * FROM users ORDER BY created_at</div>
+      </div>
+    </ng-container>
+    <ng-template #aiText>
+      <pre class="ai-pre">{{ aiSummary }}</pre>
+    </ng-template>
+  </div>
 </div>

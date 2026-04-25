@@ -34,6 +34,18 @@ export class IntellisysApiService {
     }
   }
 
+  /** Clear active project (e.g. after deleting the current project). */
+  clearProjectId(): void {
+    this.projectId.set(null);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('intellisys_project_id');
+    }
+  }
+
+  deleteProject(id: number) {
+    return this.http.delete<void>(`${this._base}/projects/${id}`);
+  }
+
   readStoredId(): number | null {
     if (typeof localStorage === 'undefined') return null;
     const s = localStorage.getItem('intellisys_project_id');

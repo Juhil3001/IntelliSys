@@ -1,20 +1,31 @@
-<h2>Issues</h2>
-<p class="muted" *ngIf="error">{{ error }}</p>
-<p class="muted" *ngIf="!error && !rows.length">No issues — run recompute on the dashboard after calls exist.</p>
-<table *ngIf="rows.length">
-  <thead>
-    <tr>
-      <th>Severity</th>
-      <th>Type</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let r of rows">
-      <td>{{ r.severity }}</td>
-      <td><code>{{ r.type }}</code></td>
-      <td>{{ r.description }}</td>
-    </tr>
-  </tbody>
-</table>
-<button type="button" class="primary" (click)="load()">Refresh</button>
+<div class="page">
+  <h1 class="page-title">Issues</h1>
+
+  <div class="surface empty-project" *ngIf="api.projectId() == null">
+    <p class="text-muted" style="margin: 0">Select a project on the Dashboard to list issues for that workspace.</p>
+  </div>
+
+  <ng-container *ngIf="api.projectId() != null">
+    <p class="text-muted" *ngIf="error">{{ error }}</p>
+    <p class="text-muted" *ngIf="!error && !rows.length">No issues — run recompute on the dashboard after calls exist.</p>
+    <table *ngIf="rows.length">
+      <thead>
+        <tr>
+          <th>Severity</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of rows">
+          <td>{{ r.severity }}</td>
+          <td><code>{{ r.type }}</code></td>
+          <td>{{ r.description }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin-top: var(--space-4)">
+      <button type="button" class="btn btn-primary" (click)="load()">Refresh</button>
+    </p>
+  </ng-container>
+</div>

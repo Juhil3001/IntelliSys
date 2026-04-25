@@ -1,0 +1,59 @@
+.settings-list {
+  list-style: none;
+  padding: 0;
+  margin: 1.25rem 0 0;
+  max-width: 32rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.settings-tile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  padding: 0.75rem 0.9rem;
+  background: var(--color-surface, #0f1623);
+  border: 0.5px solid var(--app-border, #21262d);
+  border-radius: 8px;
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.settings-tile:hover:not(.st-static) {
+  background: #161b22;
+}
+.st-ico {
+  width: 2rem;
+  text-align: center;
+  color: #7c3aed;
+  font-size: 0.9rem;
+}
+.st-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary, #e6edf3);
+}
+.st-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted, #8b949e);
+  margin-top: 0.1rem;
+}
+.st-chev {
+  margin-left: auto;
+  color: #6b7280;
+  font-size: 1.1rem;
+}
+.st-static {
+  cursor: default;
+  opacity: 0.95;
+}
+.st-danger .st-title {
+  color: #f87171;
+}
+.st-danger:hover {
+  background: #2a1515;
+}

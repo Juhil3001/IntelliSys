@@ -1,0 +1,413 @@
+.saas-root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--app-bg, #0d1117);
+  position: relative;
+}
+.saas-frame {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  min-height: 100dvh;
+  max-width: 1400px;
+  margin: 0 auto;
+  border: 0.5px solid var(--app-border, #21262d);
+  border-radius: 12px;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+.icon-rail {
+  width: 52px;
+  flex-shrink: 0;
+  background: var(--rail-bg, #090d13);
+  border-right: 0.5px solid var(--app-border, #21262d);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 8px 0 10px;
+  gap: 4px;
+  z-index: 40;
+  transition: width 0.22s ease;
+  overflow: hidden;
+}
+.rail-wide .icon-rail {
+  width: 200px;
+}
+.rail-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 4px;
+  gap: 6px;
+}
+.rail-wide .rail-head {
+  align-items: flex-start;
+  padding: 0 8px 0 10px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+.rail-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #7c3aed, #14b8a6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.rail-expand {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: var(--btn-ghost-bg, #161b22);
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.12s;
+}
+.rail-expand:hover {
+  background: #1f2937;
+  color: #e5e7eb;
+}
+.chev-ico {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.rail-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  align-items: center;
+  padding: 0 4px;
+  box-sizing: border-box;
+}
+.rail-wide .rail-group,
+.rail-wide .rail-settings {
+  align-items: stretch;
+  padding: 0 6px;
+}
+.rail-link {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  min-height: 36px;
+  gap: 0;
+  border-radius: 8px;
+  color: #6b7280;
+  text-decoration: none;
+  padding: 0 2px;
+  box-sizing: border-box;
+  transition:
+    color 0.12s,
+    background 0.12s;
+}
+.rail-ic-wrap {
+  width: 32px;
+  min-width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.rail-ico {
+  width: 18px;
+  height: 18px;
+}
+.rail-txt {
+  display: none;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--rail-text, #9ca3af);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 4px;
+  flex: 1;
+  min-width: 0;
+}
+.rail-wide .rail-txt {
+  display: block;
+  flex: 1;
+  min-width: 0;
+}
+.rail-link:hover,
+.rail-settings:hover {
+  background: #161b22;
+  color: #d1d5db;
+}
+.rail-link.active,
+.rail-settings.active {
+  background: #1a1040;
+  color: #a78bfa;
+}
+.rail-link.active .rail-ico,
+.rail-wide .rail-link.active .rail-txt {
+  color: #a78bfa;
+}
+.rail-divider {
+  width: 28px;
+  max-width: calc(100% - 8px);
+  height: 0.5px;
+  background: var(--app-border, #21262d);
+  margin: 6px auto 4px;
+  align-self: center;
+  flex-shrink: 0;
+}
+.rail-wide .rail-divider {
+  width: 100%;
+  margin: 6px 8px 4px;
+}
+.rail-settings {
+  margin-top: auto;
+  padding: 0 2px 0 2px;
+}
+.rail-wide .rail-head .rail-logo {
+  margin: 0;
+}
+.saas-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--app-bg, #0d1117);
+}
+.topbar {
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 12px 0 10px;
+  gap: 10px;
+  background: var(--app-bg, #0d1117);
+  border-bottom: 0.5px solid var(--app-border, #21262d);
+}
+.topbar-brand {
+  font-size: 13px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.brand-light {
+  color: var(--text-primary, #e6edf3);
+}
+.brand-accent {
+  color: #7c3aed;
+}
+.topbar-search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  max-width: 220px;
+  height: 26px;
+  margin-left: auto;
+  background: var(--search-bg, #161b22);
+  border: 0.5px solid var(--search-border, #30363d);
+  border-radius: 6px;
+  padding: 0 8px;
+  gap: 6px;
+  color: var(--text-dim, #6b7280);
+}
+.search-ico {
+  flex-shrink: 0;
+  opacity: 0.7;
+  color: inherit;
+}
+.search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-primary, #e6edf3);
+  font-size: 11px;
+  outline: none;
+}
+.search-input::placeholder {
+  color: var(--text-placeholder, #484f58);
+}
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+.theme-btn {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 0 8px;
+  height: 26px;
+  border-radius: 6px;
+  border: 0.5px solid var(--search-border, #30363d);
+  background: var(--search-bg, #161b22);
+  color: var(--text-muted, #8b949e);
+  cursor: pointer;
+}
+.theme-btn:hover {
+  color: var(--text-primary, #e6edf3);
+  border-color: #6b7280;
+}
+.bell-btn {
+  position: relative;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--search-bg, #161b22);
+  border: 0.5px solid var(--search-border, #30363d);
+  border-radius: 6px;
+  color: #8b949e;
+  text-decoration: none;
+  transition: background 0.12s;
+}
+.bell-btn:hover {
+  color: #e6edf3;
+  background: #1c2128;
+}
+.bell-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: #f85149;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.user-av {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7c3aed, #14b8a6);
+  color: #fff;
+  font-size: 8px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+.saas-content {
+  flex: 1;
+  min-height: 0;
+  padding: 10px 12px 16px;
+}
+.nav-backdrop {
+  display: none;
+}
+.nav-toggle {
+  display: none;
+}
+@media (max-width: 767px) {
+  .saas-frame {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  .saas-root .icon-rail {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 52px;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+  .saas-root.rail-wide .icon-rail {
+    width: min(200px, 80vw) !important;
+  }
+  .saas-root.nav-open .icon-rail {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+  }
+  .nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 30;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .saas-root.nav-open .nav-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .nav-toggle {
+    display: flex;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 50;
+    width: 2.75rem;
+    height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border: 0.5px solid #30363d;
+    border-radius: 8px;
+    background: #161b22;
+    cursor: pointer;
+    padding: 0;
+  }
+  .hamburger,
+  .hamburger::before,
+  .hamburger::after {
+    display: block;
+    width: 1.1rem;
+    height: 2px;
+    background: #e6edf3;
+    position: relative;
+  }
+  .hamburger::before,
+  .hamburger::after {
+    content: '';
+    position: absolute;
+    left: 0;
+  }
+  .hamburger::before {
+    top: -5px;
+  }
+  .hamburger::after {
+    top: 5px;
+  }
+  .topbar {
+    padding-left: 3.5rem;
+  }
+  .saas-root.nav-open .nav-toggle {
+    left: 10px;
+  }
+}
+@media (min-width: 768px) {
+  .nav-backdrop {
+    display: none !important;
+  }
+  .nav-toggle {
+    display: none !important;
+  }
+  .saas-root .icon-rail {
+    position: static;
+    transform: none !important;
+  }
+}

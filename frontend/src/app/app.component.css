@@ -1,38 +1,4 @@
-.top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1.5rem;
-  background: #0f172a;
-  color: #e2e8f0;
-}
-.top h1 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin: 0;
-  letter-spacing: 0.02em;
-}
-nav {
-  display: flex;
-  gap: 0.5rem;
-}
-nav a {
-  color: #94a3b8;
-  text-decoration: none;
-  padding: 0.35rem 0.6rem;
-  border-radius: 6px;
-  font-size: 0.9rem;
-}
-nav a:hover {
-  color: #f8fafc;
-  background: #1e293b;
-}
-nav a.active {
-  color: #38bdf8;
-  background: #1e293b;
-}
-.content {
-  padding: 1.5rem;
-  max-width: 56rem;
-  margin: 0 auto;
+:host {
+  display: block;
+  min-height: 100dvh;
 }

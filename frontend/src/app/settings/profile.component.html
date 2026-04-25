@@ -1,0 +1,26 @@
+<div class="page">
+  <p class="back"><a routerLink="/settings" class="inline-link">← Settings</a></p>
+  <h1 class="page-title">Profile</h1>
+  <p class="text-muted" style="margin-top: 0">Your sign-in email cannot be changed here.</p>
+
+  <div class="surface pro-card" *ngIf="u || auth.user()">
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <label class="pro-field">
+        <span>Email</span>
+        <input class="pro-input" type="text" [value]="emailDisplay" readonly />
+      </label>
+      <label class="pro-field">
+        <span>Display name</span>
+        <input class="pro-input" type="text" formControlName="displayName" />
+        <span class="err" *ngIf="form.controls.displayName.touched && form.controls.displayName.errors?.['required']"
+          >Required</span
+        >
+      </label>
+      <p class="err" *ngIf="err">{{ err }}</p>
+      <p class="ok" *ngIf="saved">Profile saved.</p>
+      <button type="submit" class="btn btn-primary" [disabled]="loading">
+        {{ loading ? 'Saving…' : 'Save changes' }}
+      </button>
+    </form>
+  </div>
+</div>

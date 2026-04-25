@@ -12,7 +12,10 @@ class Settings(BaseSettings):
     )
 
     database_url: str = "postgresql+psycopg2://postgres:password@127.0.0.1:5432/intellisys"
-    cors_origins: str = "http://localhost:4200"
+    # Comma-separated; include 127.0.0.1 and localhost (browser treats them as different Origins)
+    cors_origins: str = "http://localhost:4200,http://127.0.0.1:4200"
+    # Any dev host/port on these hosts (e.g. :4300) — see main.py CORS; empty = disabled
+    cors_origin_regex: str = r"^https?://(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?$"
     openai_api_key: str = ""
     automation_webhook_secret: str = "change-me-in-production"
     log_level: str = "INFO"
@@ -23,10 +26,19 @@ class Settings(BaseSettings):
     github_token: str = ""
     # Directory under which project workspaces (cloned repos) are stored; must be absolute on the server.
     workspace_base: str = ""
+    # JWT (change in production)
+    jwt_secret: str = "intellisys-dev-secret-change-in-production"
+    jwt_algorithm: str = "HS256"
+    jwt_exp_hours: int = 24 * 7
 
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
+    @property
+    def cors_origin_regex_effective(self) -> str | None:
+        s = (self.cors_origin_regex or "").strip()
+        return s if s else None
 
     @property
     def workspace_base_resolved(self) -> Path:

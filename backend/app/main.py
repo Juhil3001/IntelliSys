@@ -5,8 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
 from app.db.session import SessionLocal
+from app.middleware.auth_middleware import AuthMiddleware
 from app.modules.monitoring.request_middleware import RequestLogMiddleware
 from app.routes import (
+    auth,
     alerts,
     apis,
     automation,
@@ -33,15 +35,20 @@ async def lifespan(_: FastAPI):
 app = FastAPI(title="IntelliSys API", version="0.1.0", lifespan=lifespan)
 
 app.add_middleware(RequestLogMiddleware, session_factory=SessionLocal)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.cors_origin_list,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app.add_middleware(AuthMiddleware)
+# CORS must be last added = outermost so every response (including early 401s) gets CORS headers.
+_cors_kw: dict = {
+    "allow_origins": settings.cors_origin_list,
+    "allow_credentials": True,
+    "allow_methods": ["*"],
+    "allow_headers": ["*"],
+}
+if settings.cors_origin_regex_effective:
+    _cors_kw["allow_origin_regex"] = settings.cors_origin_regex_effective
+app.add_middleware(CORSMiddleware, **_cors_kw)
 
 app.include_router(health.router, tags=["health"])
+app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(alerts.router, prefix="/alerts", tags=["alerts"])
 app.include_router(projects.router, prefix="/projects", tags=["projects"])
 app.include_router(scans.router, prefix="/scans", tags=["scans"])

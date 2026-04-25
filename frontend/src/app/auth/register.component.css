@@ -1,0 +1,67 @@
+/* Same as login; kept minimal — classes match login.component */
+.auth-page {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: var(--app-bg, #0d1117);
+}
+.auth-card {
+  width: 100%;
+  max-width: 22rem;
+  background: var(--color-surface, #0f1623);
+  border: 0.5px solid var(--app-border, #21262d);
+  border-radius: 12px;
+  padding: 1.5rem 1.25rem 1.25rem;
+}
+.auth-title {
+  margin: 0 0 0.25rem;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--text-primary, #e6edf3);
+}
+.auth-sub {
+  margin: 0 0 1.25rem;
+  font-size: 0.85rem;
+  color: var(--text-muted, #8b949e);
+}
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.9rem;
+  font-size: 0.8rem;
+  color: var(--text-muted, #8b949e);
+}
+.auth-input {
+  border: 0.5px solid var(--search-border, #30363d);
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  background: var(--search-bg, #161b22);
+  color: var(--text-primary, #e6edf3);
+  font-size: 0.95rem;
+  outline: none;
+}
+.auth-input:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
+}
+.auth-submit {
+  width: 100%;
+  margin-top: 0.25rem;
+}
+.err {
+  color: #f85149;
+  font-size: 0.8rem;
+  margin: 0;
+}
+.auth-foot {
+  margin: 1rem 0 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted, #8b949e);
+}
+.auth-foot a {
+  color: #a78bfa;
+}

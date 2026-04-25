@@ -1,16 +1,24 @@
-<h2>Chat</h2>
-<p class="muted" *ngIf="projectId == null">Choose a project on the dashboard first.</p>
-<ng-container *ngIf="projectId != null">
-  <div class="row">
-    <label>
-      Message
-      <textarea [(ngModel)]="message" rows="4" class="msg"></textarea>
-    </label>
+<div class="page">
+  <h1 class="page-title">Chat</h1>
+
+  <div class="surface empty-project" *ngIf="projectId == null">
+    <p class="text-muted" style="margin: 0">Select a project on the Dashboard to use project-scoped chat.</p>
   </div>
-  <button class="primary" (click)="send()" [disabled]="busy">Send</button>
-  <p class="muted" *ngIf="error">{{ error }}</p>
-  <div class="card" *ngIf="reply">
-    <h3>Reply</h3>
-    <pre class="raw">{{ reply }}</pre>
-  </div>
-</ng-container>
+
+  <ng-container *ngIf="projectId != null">
+    <div class="row">
+      <label class="field">
+        <span class="field-label">Message</span>
+        <textarea [(ngModel)]="message" rows="4" class="msg input-full"></textarea>
+      </label>
+    </div>
+    <p>
+      <button type="button" class="btn btn-primary" (click)="send()" [disabled]="busy">Send</button>
+    </p>
+    <p class="text-muted" *ngIf="error">{{ error }}</p>
+    <div class="surface" *ngIf="reply">
+      <h2 class="section-title" style="font-size: 1rem; margin-top: 0">Reply</h2>
+      <pre class="raw">{{ reply }}</pre>
+    </div>
+  </ng-container>
+</div>

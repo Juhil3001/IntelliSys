@@ -12,7 +12,7 @@ export class ApisComponent implements OnInit {
   rows: { method: string; endpoint: string; name: string; id: number }[] = [];
   error = '';
 
-  constructor(private api: IntellisysApiService) {}
+  constructor(readonly api: IntellisysApiService) {}
 
   ngOnInit() {
     this.load();
@@ -21,7 +21,8 @@ export class ApisComponent implements OnInit {
   load() {
     const id = this.api.projectId();
     if (id == null) {
-      this.error = 'Set an active project from the dashboard.';
+      this.error = '';
+      this.rows = [];
       return;
     }
     this.error = '';

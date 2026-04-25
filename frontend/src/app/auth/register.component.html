@@ -1,0 +1,48 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <h1 class="auth-title">Create account</h1>
+    <p class="auth-sub">Password must be 8+ characters with a letter and a number.</p>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <label class="auth-field">
+        <span>Display name</span>
+        <input type="text" formControlName="displayName" autocomplete="name" class="auth-input" />
+        <span class="err" *ngIf="form.controls.displayName.touched && form.controls.displayName.errors?.['required']"
+          >Required</span
+        >
+      </label>
+      <label class="auth-field">
+        <span>Email</span>
+        <input type="email" formControlName="email" autocomplete="email" class="auth-input" />
+        <span class="err" *ngIf="form.controls.email.touched && form.controls.email.errors?.['email']">Valid email required</span>
+        <span class="err" *ngIf="form.controls.email.touched && form.controls.email.errors?.['required']">Required</span>
+      </label>
+      <label class="auth-field">
+        <span>Password</span>
+        <input type="password" formControlName="password" autocomplete="new-password" class="auth-input" />
+        <span class="err" *ngIf="form.controls.password.touched && form.controls.password.errors?.['minLen']"
+          >At least 8 characters</span
+        >
+        <span class="err" *ngIf="form.controls.password.touched && form.controls.password.errors?.['weak']"
+          >Include at least one letter and one number</span
+        >
+        <span class="err" *ngIf="form.controls.password.touched && form.controls.password.errors?.['required']"
+          >Required</span
+        >
+      </label>
+      <label class="auth-field">
+        <span>Confirm password</span>
+        <input type="password" formControlName="confirm" autocomplete="new-password" class="auth-input" />
+        <span class="err" *ngIf="form.touched && form.errors?.['match'] && form.controls.confirm.touched"
+          >Passwords must match</span
+        >
+      </label>
+      <p class="err" *ngIf="error">{{ error }}</p>
+      <button type="submit" class="btn btn-primary auth-submit" [disabled]="loading">
+        {{ loading ? 'Creating…' : 'Sign up' }}
+      </button>
+    </form>
+    <p class="auth-foot">
+      Already have an account? <a routerLink="/login">Sign in</a>
+    </p>
+  </div>
+</div>

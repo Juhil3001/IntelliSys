@@ -1,0 +1,55 @@
+<div class="page">
+  <h1 class="page-title">Settings</h1>
+  <p class="text-muted" style="margin-top: 0">Manage your account, appearance, and workspace preferences.</p>
+
+  <ul class="settings-list">
+    <li>
+      <a routerLink="/settings/profile" class="settings-tile">
+        <span class="st-ico" aria-hidden="true">◉</span>
+        <div>
+          <div class="st-title">Profile</div>
+          <div class="st-sub">Name, email, and session</div>
+        </div>
+        <span class="st-chev" aria-hidden="true">›</span>
+      </a>
+    </li>
+    <li>
+      <div class="settings-tile st-static">
+        <span class="st-ico" aria-hidden="true">◐</span>
+        <div>
+          <div class="st-title">Appearance</div>
+          <div class="st-sub">Use the Light / Dark toggle in the top bar</div>
+        </div>
+      </div>
+    </li>
+    <li>
+      <a routerLink="/projects" class="settings-tile">
+        <span class="st-ico" aria-hidden="true">▢</span>
+        <div>
+          <div class="st-title">Projects</div>
+          <div class="st-sub">Connect and manage codebases</div>
+        </div>
+        <span class="st-chev" aria-hidden="true">›</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/actions" class="settings-tile">
+        <span class="st-ico" aria-hidden="true">⚡</span>
+        <div>
+          <div class="st-title">Actions</div>
+          <div class="st-sub">Scans, sync, and AI insight</div>
+        </div>
+        <span class="st-chev" aria-hidden="true">›</span>
+      </a>
+    </li>
+    <li>
+      <button type="button" class="settings-tile st-danger" (click)="signOut()">
+        <span class="st-ico" aria-hidden="true">⎆</span>
+        <div>
+          <div class="st-title">Sign out</div>
+          <div class="st-sub">End your session on this device</div>
+        </div>
+      </button>
+    </li>
+  </ul>
+</div>

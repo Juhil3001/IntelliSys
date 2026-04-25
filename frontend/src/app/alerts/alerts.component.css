@@ -1,5 +1,5 @@
 .lead {
-  color: #475569;
+  color: #8b949e;
   font-size: 0.95rem;
   max-width: 40rem;
   line-height: 1.45;
@@ -17,8 +17,8 @@
   min-width: 5.5rem;
   padding: 0.65rem 0.9rem;
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  background: #fff;
+  border: 0.5px solid #21262d;
+  background: #0f1623;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -32,32 +32,34 @@
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #64748b;
+  color: #6b7280;
 }
 .summary-card.sev-critical .n {
-  color: #b91c1c;
+  color: #f85149;
 }
 .summary-card.sev-high .n {
-  color: #c2410c;
+  color: #f97316;
 }
 .summary-card.sev-medium .n {
-  color: #b45309;
+  color: #f59e0b;
 }
 .summary-card.sev-low .n {
-  color: #0f766e;
+  color: #14b8a6;
 }
 
 .total {
   margin: 0 0 1rem;
   font-size: 0.95rem;
+  color: #e6edf3;
 }
 
 .empty {
-  color: #64748b;
+  color: #8b949e;
 }
 
 .alert-table {
   margin: 0 0 1rem;
+  font-size: 0.85rem;
 }
 .badge {
   display: inline-block;
@@ -69,25 +71,25 @@
   letter-spacing: 0.03em;
 }
 .sev-critical {
-  background: #fee2e2;
-  color: #991b1b;
+  background: #2d1317;
+  color: #f87171;
 }
 .sev-high {
-  background: #ffedd5;
-  color: #9a3412;
+  background: #2a1f00;
+  color: #fb923c;
 }
 .sev-medium {
-  background: #fef3c7;
-  color: #92400e;
+  background: #2a1f00;
+  color: #fbbf24;
 }
 .sev-low {
-  background: #ccfbf1;
-  color: #115e59;
+  background: #0d2b2b;
+  color: #2dd4bf;
 }
 
 tr.row-critical td {
-  background: #fff5f5;
+  background: #1a0a0a;
 }
 tr.row-high td {
-  background: #fffbeb;
+  background: #1a1508;
 }

@@ -31,7 +31,7 @@ export class AlertsComponent implements OnInit {
   error = '';
   loading = false;
 
-  constructor(private api: IntellisysApiService) {}
+  constructor(readonly api: IntellisysApiService) {}
 
   ngOnInit() {
     this.load();
@@ -40,7 +40,7 @@ export class AlertsComponent implements OnInit {
   load() {
     const id = this.api.projectId();
     if (id == null) {
-      this.error = 'Choose a project on the Dashboard first.';
+      this.error = '';
       this.summary = null;
       this.items = [];
       return;

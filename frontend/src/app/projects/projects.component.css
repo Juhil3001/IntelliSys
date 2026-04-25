@@ -1,0 +1,103 @@
+/* Uses global .page, .field, .input-full from app + dashboard variables */
+.form-lead {
+  margin: 0 0 1rem;
+  max-width: 40rem;
+  line-height: 1.45;
+}
+.form-card .section-title {
+  margin-top: 0;
+}
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.field-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted, #8b949e);
+}
+.input-full {
+  width: 100%;
+  max-width: 32rem;
+  padding: 0.45rem 0.55rem;
+  border: 0.5px solid #30363d;
+  border-radius: 6px;
+  background: #161b22;
+  color: #e6edf3;
+  font-size: 0.9rem;
+}
+.form-actions {
+  margin: 0.35rem 0 0;
+}
+.section-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem;
+  color: var(--text-primary, #e6edf3);
+}
+.project-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.project-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 0.5px solid #21262d;
+}
+.project-row:last-child {
+  border-bottom: none;
+}
+.project-row-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.id-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  background: #1a1040;
+  color: #a78bfa;
+  font-family: var(--font-mono, monospace);
+}
+.project-name {
+  color: #e6edf3;
+  font-weight: 600;
+}
+.project-meta {
+  font-size: 0.8rem;
+  margin: 0.1rem 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+.n8n-line code {
+  display: block;
+  margin-top: 0.25rem;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-size: 0.75rem;
+}
+.meta-line {
+  margin: 0.3rem 0;
+  color: #c9d1d9;
+  font-size: 0.9rem;
+}
+[data-theme='light'] .input-full {
+  background: #fff;
+  color: #0f172a;
+  border-color: #e2e8f0;
+}

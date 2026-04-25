@@ -1,0 +1,50 @@
+<div class="page act-page">
+  <h1 class="page-title">Workspace actions</h1>
+  <p class="text-muted" *ngIf="projectId == null">Select a project on the <a routerLink="/projects" class="inline-link">Projects</a> page first.</p>
+
+  <div class="act-layout" *ngIf="projectId != null">
+    <div class="act-nav">
+      <button
+        type="button"
+        *ngFor="let a of actions"
+        class="act-nav-btn"
+        [class.on]="selected === a.key"
+        (click)="select(a.key)"
+      >
+        <span class="act-ico" [attr.data-i]="a.icon" aria-hidden="true"></span>
+        <span class="act-lbl">{{ a.label }}</span>
+      </button>
+    </div>
+    <div class="act-panel">
+      <ng-container *ngFor="let a of actions">
+        <div *ngIf="selected === a.key" class="act-detail">
+          <h2 class="act-h2">{{ a.label }}</h2>
+          <p class="text-muted act-blurb">{{ a.blurb }}</p>
+          <div class="act-run" *ngIf="a.key === 'scan'">
+            <button type="button" class="btn btn-primary" (click)="runScan()" [disabled]="busy">Run scan</button>
+          </div>
+          <div class="act-run" *ngIf="a.key === 'sync'">
+            <button
+              type="button"
+              class="btn btn-primary"
+              (click)="runSync()"
+              [disabled]="busy || !activeProject?.github_repo_url"
+              [title]="!activeProject?.github_repo_url ? 'Connect a GitHub project first' : ''"
+            >
+              Sync &amp; full scan
+            </button>
+            <p *ngIf="!activeProject?.github_repo_url" class="text-muted small-hint">Requires a project linked to a GitHub repository.</p>
+          </div>
+          <div class="act-run" *ngIf="a.key === 'recompute'">
+            <button type="button" class="btn btn-primary" (click)="runRecompute()" [disabled]="busy">Recompute issues</button>
+          </div>
+          <div class="act-run" *ngIf="a.key === 'ai'">
+            <button type="button" class="btn btn-primary" (click)="runAi()" [disabled]="busy">Generate insight</button>
+            <pre class="raw ai-block" *ngIf="aiSummary && selected === 'ai'">{{ aiSummary }}</pre>
+          </div>
+          <p *ngIf="lastResult" class="act-result text-muted"><strong>Result:</strong> {{ lastResult }}</p>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

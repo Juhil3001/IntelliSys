@@ -64,6 +64,15 @@ def get_project(project_id: int, db: Session = Depends(get_db)) -> Project:
     return p
 
 
+@router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_project(project_id: int, db: Session = Depends(get_db)) -> None:
+    p = db.get(Project, project_id)
+    if not p:
+        raise HTTPException(status_code=404, detail="Project not found")
+    db.delete(p)
+    db.commit()
+
+
 @router.post("/{project_id}/sync-and-scan", response_model=dict)
 def sync_and_scan(
     project_id: int,

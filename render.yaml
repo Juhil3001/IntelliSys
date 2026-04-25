@@ -1,0 +1,44 @@
+# Render Blueprint: https://docs.render.com/infrastructure-as-code
+# In the Render dashboard, link this repo and use "Apply render.yaml" or set your Web Service to match.
+#
+# After the static site deploys, add its https://....onrender.com origin to the API’s CORS_ORIGINS
+# in the intellisys-api service (Environment), comma-separated with no spaces after commas.
+services:
+  - type: web
+    name: intellisys-api
+    runtime: python
+    region: singapore
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    # Render sets PORT; bind 0.0.0.0. Use the script if shell expansion of $PORT is finicky in the UI.
+    startCommand: sh start-render.sh
+    healthCheckPath: /health
+    envVars:
+      # Pin Python (Render defaults to 3.14+ for new services; match local 3.11)
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: PYTHONPATH
+        value: .
+      - key: CORS_ORIGINS
+        value: http://localhost:4200,http://127.0.0.1:4200
+    # Add in the dashboard: DATABASE_URL (from your Postgres), AUTOMATION_WEBHOOK_SECRET, etc.
+
+  # Angular static build: production build uses environment.prod.ts → intellisys API URL
+  - type: web
+    name: intellisys-web
+    runtime: static
+    region: singapore
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    # Path to built files, relative to repo root (not rootDir) — see Angular outputPath + browser
+    staticPublishPath: ./frontend/dist/frontend/browser
+    # Client-side routes (e.g. /login) must serve index.html
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0

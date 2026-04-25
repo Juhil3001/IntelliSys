@@ -37,6 +37,28 @@ python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
   - **`{"action": "daily_scan", "project_id": <n>, "with_snapshot": true}`** — Git sync (if the project has a GitHub URL), full file scan, **recompute** dead/slow issues, and an optional **snapshot** (same as manual “Sync & full scan”).
 - **GitHub** — set `GITHUB_TOKEN` in `backend/.env` for private repositories. Clones are stored under `WORKSPACE_BASE` or `backend/data/workspaces` by default. Install **git** on the API host.
 
+## Deploy (Render)
+
+**“Port scan timeout / no open ports”** — Render probes the process bound to the **`PORT`** env var. If nothing is listening in time, you get this error. **Troubleshoot in order:**
+
+1. **Start command (required)** — either:
+   - `sh start-render.sh` (uses [`backend/start-render.sh`](backend/start-render.sh), sets `PYTHONPATH` and `python -m uvicorn` on `$PORT`), **or**
+   - `uvicorn app.main:app --host 0.0.0.0 --port $PORT`  
+   **Wrong:** `--port 8000` only, or `127.0.0.1` as host, or a command that **exits** before the server starts (see logs).
+2. **Root directory:** `backend` (so `app.main:app` imports correctly).
+3. **Runtime:** **Python** (not Node; npm-only builds never open your API port).
+4. **Build:** `pip install -r requirements.txt` (With root `backend`, that file is `backend/requirements.txt`.)
+5. **Read deploy logs** — if you see `ModuleNotFoundError` / exit code 1, the web process never started; fix the error first.
+6. **Environment:** set **`DATABASE_URL`** to your Render Postgres (link DB or paste URL). A crash on the **first** request is less common than a bad **start**; still verify vars after the service is **live**.
+
+**Import / `ModuleNotFoundError: No module named 'app'`** — your **Root directory** must be **`backend`** (this repo has `app` under `backend/app/`, not at the repo root). The log path may show `.../project/src/...`; that is Render’s build tree, not a folder you name `src`. After pull, use start command `sh start-render.sh` (it `cd`s into `backend/`).
+
+**Python 3.14 on Render** — new services default to **3.14**. This project is tested on **3.11**. The repo includes [`.python-version`](.python-version) and [`render.yaml`](render.yaml) sets **`PYTHON_VERSION=3.11.11`**. In the dashboard, add the same **Environment** variable if you don’t use the Blueprint.
+
+**Health check path:** `/health` in the service settings (optional; matches [`health`](backend/app/routes/health.py)).
+
+Set **`AUTOMATION_WEBHOOK_SECRET`**, **`CORS_ORIGINS`** (your deployed UI origin, comma-separated if many), and optional keys from [`.env.example`](.env.example) in **Environment**. See [`render.yaml`](render.yaml).
+
 ## Frontend
 
 ```text
