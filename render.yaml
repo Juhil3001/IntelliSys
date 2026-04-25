@@ -1,8 +1,9 @@
 # Render Blueprint: https://docs.render.com/infrastructure-as-code
 # In the Render dashboard, link this repo and use "Apply render.yaml" or set your Web Service to match.
 #
-# After the static site deploys, add its https://....onrender.com origin to the API’s CORS_ORIGINS
-# in the intellisys-api service (Environment), comma-separated with no spaces after commas.
+# CORS: do not pin CORS_ORIGINS in this file — each blueprint sync was overwriting the dashboard
+# and breaking the live static site. Defaults + *.onrender.com regex are in app/core/config.py.
+# For a custom domain, set CORS_ADDITIONAL_ORIGINS in the intellisys-api service on Render.
 services:
   - type: web
     name: intellisys-api
@@ -20,9 +21,7 @@ services:
         value: 3.11.11
       - key: PYTHONPATH
         value: .
-      - key: CORS_ORIGINS
-        value: http://localhost:4200,http://127.0.0.1:4200
-    # Add in the dashboard: DATABASE_URL (from your Postgres), AUTOMATION_WEBHOOK_SECRET, etc.
+    # Add in the dashboard: DATABASE_URL, CORS_ADDITIONAL_ORIGINS (if custom domain), etc.
 
   # Angular static build: production build uses environment.prod.ts → intellisys API URL
   - type: web

@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg2://postgres:password@127.0.0.1:5432/intellisys"
     # Comma-separated; include 127.0.0.1 and localhost (browser treats them as different Origins)
     cors_origins: str = "http://localhost:4200,http://127.0.0.1:4200"
+    # Extra allowed origins (e.g. custom domain for the static app). Comma-separated. Env: CORS_ADDITIONAL_ORIGINS
+    cors_additional_origins: str = ""
     # Matches local dev OR any Render static/web *.onrender.com (HTTPS). Set to "" to disable regex.
     # For a custom domain front-end, add its exact https:// origin to cors_origins above.
     cors_origin_regex: str = (
@@ -37,7 +39,18 @@ class Settings(BaseSettings):
 
     @property
     def cors_origin_list(self) -> list[str]:
-        return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+        parts: list[str] = [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+        if (self.cors_additional_origins or "").strip():
+            parts.extend(
+                o.strip() for o in self.cors_additional_origins.split(",") if o.strip()
+            )
+        seen: set[str] = set()
+        out: list[str] = []
+        for o in parts:
+            if o not in seen:
+                seen.add(o)
+                out.append(o)
+        return out
 
     @property
     def cors_origin_regex_effective(self) -> str | None:

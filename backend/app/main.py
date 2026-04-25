@@ -39,7 +39,8 @@ app.add_middleware(AuthMiddleware)
 # CORS must be last added = outermost so every response (including early 401s) gets CORS headers.
 _cors_kw: dict = {
     "allow_origins": settings.cors_origin_list,
-    "allow_credentials": True,
+    # JWT in Authorization header, not cookies — False avoids stricter CORS + credential issues in browsers
+    "allow_credentials": False,
     "allow_methods": ["*"],
     "allow_headers": ["*"],
 }
