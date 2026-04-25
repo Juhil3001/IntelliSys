@@ -30,8 +30,7 @@ def execute_project_scan_pipeline(
     ws = settings.workspace_base_resolved
 
     if project.github_repo_url:
-        if not settings.github_token.strip():
-            raise ValueError("GITHUB_TOKEN is not set in the server environment (required for GitHub projects)")
+        # Public repos clone over HTTPS without a token. Private repos need GITHUB_TOKEN on the server.
         dest = ws / "projects" / str(project.id) / "repo"
         ensure_path_in_workspace(dest, ws)
         try:
@@ -39,7 +38,7 @@ def execute_project_scan_pipeline(
                 project.github_repo_url,
                 (project.default_branch or "main").strip() or "main",
                 dest,
-                settings.github_token,
+                settings.github_token_effective,
             )
         except GitSyncError as e:
             raise ValueError(str(e)) from e

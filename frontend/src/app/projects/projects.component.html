@@ -16,6 +16,7 @@
       <label class="field">
         <span class="field-label">GitHub URL</span>
         <input [(ngModel)]="githubUrl" class="input-full" placeholder="https://github.com/org/repo" />
+        <span class="text-muted small-hint">Use the repo home URL (not the <code>/tree/…</code> page from the browser).</span>
       </label>
       <label class="field" *ngIf="githubUrl.trim()">
         <span class="field-label">Default branch</span>

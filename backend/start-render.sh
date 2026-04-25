@@ -9,4 +9,6 @@ if [ -z "${PORT}" ]; then
   echo "warning: PORT unset, using 8000" >&2
   export PORT=8000
 fi
+# Apply DB migrations (idempotent). Without this, /auth/register often returns 500 (missing users table).
+python -m alembic upgrade head
 exec python -m uvicorn app.main:app --host 0.0.0.0 --port "$PORT"

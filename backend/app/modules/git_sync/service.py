@@ -8,14 +8,27 @@ from pathlib import Path
 _GITHUB_HTTPS = re.compile(
     r"^https://([^/@]+/){1,2}[^/]+/[^/]+(?:\.git)?/?$", re.IGNORECASE
 )
+# Browser URLs like https://github.com/org/repo/tree/main — not valid for git clone
+_GITHUB_TREE_BLOB = re.compile(
+    r"^(https?://(?:www\.)?github\.com/[^/]+/[^/]+)(?:/tree/[^/]+(?:/.*)?|/blob/[^/]+(?:/.*)?)?/?$",
+    re.IGNORECASE,
+)
 
 
 class GitSyncError(Exception):
     pass
 
 
+def _strip_github_browser_path(url: str) -> str:
+    """Reduce .../org/repo/tree/branch/... or .../blob/... to .../org/repo for git remote."""
+    m = _GITHUB_TREE_BLOB.match(url.strip())
+    if m:
+        return m.group(1).rstrip("/")
+    return url.strip().rstrip("/")
+
+
 def _normalize_to_https(github_url: str) -> str:
-    s = github_url.strip()
+    s = _strip_github_browser_path(github_url)
     if s.startswith("git@github.com:"):
         path = s.replace("git@github.com:", "", 1).rstrip()
         if not path.endswith(".git"):
