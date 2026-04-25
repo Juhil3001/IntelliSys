@@ -1,0 +1,20 @@
+<h2>APIs</h2>
+<p class="muted" *ngIf="error">{{ error }}</p>
+<p class="muted" *ngIf="!error && !rows.length">No routes yet — run a scan on the dashboard.</p>
+<table *ngIf="rows.length">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Method</th>
+      <th>Endpoint</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let r of rows">
+      <td>{{ r.id }}</td>
+      <td><code>{{ r.method }}</code></td>
+      <td><code>{{ r.endpoint }}</code></td>
+    </tr>
+  </tbody>
+</table>
+<button type="button" class="primary" (click)="load()">Refresh</button>

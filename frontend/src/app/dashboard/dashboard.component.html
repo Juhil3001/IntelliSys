@@ -1,0 +1,92 @@
+<h2>Dashboard</h2>
+<p class="muted">API health: <strong>{{ healthStatus }}</strong></p>
+
+<div class="card">
+  <h3>Connect project</h3>
+  <p class="muted">
+    Register a <strong>local path</strong> (same machine as the API), a <strong>GitHub</strong> repo, or both. For
+    private GitHub repos, set <code>GITHUB_TOKEN</code> in the server <code>backend/.env</code>.
+  </p>
+  <div class="row">
+    <label>Name <input [(ngModel)]="projectName" placeholder="App name" /></label>
+  </div>
+  <div class="row">
+    <label
+      >Local root path
+      <input [(ngModel)]="rootPath" class="wide" placeholder="C:\path\to\repo (optional if using GitHub only)" />
+    </label>
+  </div>
+  <div class="row">
+    <label
+      >GitHub URL
+      <input
+        [(ngModel)]="githubUrl"
+        class="wide"
+        placeholder="https://github.com/org/repo (optional)"
+      />
+    </label>
+  </div>
+  <div class="row" *ngIf="githubUrl.trim()">
+    <label>Default branch <input [(ngModel)]="defaultBranch" placeholder="main" /></label>
+  </div>
+  <button class="primary" (click)="createProject()" [disabled]="busy || !canRegister">Register project</button>
+  <p *ngIf="lastAction && lastAction.startsWith('Created project')" class="muted reg-hint">
+    {{ lastAction }} — use that number as <code>project_id</code> in the n8n JSON body
+    (<code>daily_scan</code> / <code>full_scan</code>).
+  </p>
+</div>
+
+<div class="card" *ngIf="projects.length">
+  <h3>Projects</h3>
+  <ul class="plist">
+    <li *ngFor="let p of projects">
+      <button type="button" class="linkish" (click)="useProject(p.id)">#{{ p.id }} — {{ p.name }}</button>
+      <span class="muted" *ngIf="p.github_repo_url">{{ p.github_repo_url }} · </span>
+      <span class="muted mono">{{ p.root_path }}</span>
+    </li>
+  </ul>
+  <p *ngIf="projectId != null" class="project-id-line">
+    Active project <strong>project_id</strong> (for n8n and API):
+    <strong>{{ projectId }}</strong>
+  </p>
+  <p *ngIf="projectId != null" class="muted n8n-line">
+    Example webhook body: <code>{{ n8nBodyExample }}</code>
+  </p>
+</div>
+
+<div class="card" *ngIf="activeProject as ap">
+  <h3>Active project</h3>
+  <p *ngIf="ap.github_repo_url" class="meta-line">
+    <strong>GitHub:</strong> {{ ap.github_repo_url }} ({{ ap.default_branch || 'main' }})
+  </p>
+  <p *ngIf="ap.last_commit_sha" class="meta-line">
+    <strong>Last commit:</strong> <code>{{ ap.last_commit_sha | slice: 0:7 }}…</code>
+  </p>
+  <p *ngIf="ap.last_sync_at" class="meta-line">
+    <strong>Last sync:</strong> {{ ap.last_sync_at | date: 'medium' }}
+  </p>
+  <p *ngIf="!ap.github_repo_url" class="muted">Local project — scanning uses the path above.</p>
+</div>
+
+<div class="card">
+  <h3>Actions</h3>
+  <div class="actions">
+    <button class="primary" (click)="runScan()" [disabled]="busy || projectId == null">Run scan</button>
+    <button
+      class="primary"
+      (click)="fullSyncAndScan()"
+      [disabled]="busy || projectId == null || !activeProject?.github_repo_url"
+      title="Git sync + full scan + recompute + snapshot"
+    >
+      Sync &amp; full scan (Git)
+    </button>
+    <button class="primary" (click)="recompute()" [disabled]="busy || projectId == null">Recompute issues</button>
+    <button class="primary" (click)="generateAi()" [disabled]="busy || projectId == null">Generate AI insight</button>
+  </div>
+  <p *ngIf="lastAction" class="muted">{{ lastAction }}</p>
+</div>
+
+<div class="card" *ngIf="aiSummary">
+  <h3>Latest AI insight</h3>
+  <pre class="raw">{{ aiSummary }}</pre>
+</div>

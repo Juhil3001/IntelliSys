@@ -1,0 +1,13 @@
+.row {
+  margin-bottom: 0.75rem;
+}
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+}
+.msg {
+  width: 100%;
+  max-width: 40rem;
+}

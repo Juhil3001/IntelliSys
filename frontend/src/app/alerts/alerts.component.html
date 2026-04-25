@@ -1,0 +1,53 @@
+<h2>Alerts</h2>
+<p class="lead">
+  Open issues for the active project (unresolved). Run <strong>Recompute issues</strong> on the Dashboard
+  after scans and traffic so dead and slow API alerts stay up to date.
+</p>
+
+<p class="muted" *ngIf="error">{{ error }}</p>
+<p *ngIf="loading" class="muted">Loading…</p>
+
+<ng-container *ngIf="summary && !loading">
+  <div class="summary-row">
+    <div class="summary-card sev-critical">
+      <span class="n">{{ summary.critical }}</span>
+      <span class="l">Critical</span>
+    </div>
+    <div class="summary-card sev-high">
+      <span class="n">{{ summary.high }}</span>
+      <span class="l">High</span>
+    </div>
+    <div class="summary-card sev-medium">
+      <span class="n">{{ summary.medium }}</span>
+      <span class="l">Medium</span>
+    </div>
+    <div class="summary-card sev-low">
+      <span class="n">{{ summary.low }}</span>
+      <span class="l">Low</span>
+    </div>
+  </div>
+  <p class="total">Total active alerts: <strong>{{ summary.total }}</strong></p>
+</ng-container>
+
+<div *ngIf="!items.length && !error && !loading && summary" class="card empty">
+  <p>No open alerts. Your project has no unresolved issues, or recompute has not been run yet.</p>
+</div>
+
+<table *ngIf="items.length" class="alert-table">
+  <thead>
+    <tr>
+      <th>Severity</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let a of items" [class]="'row-' + a.severity">
+      <td><span class="badge" [ngClass]="severityClass(a.severity)">{{ a.severity }}</span></td>
+      <td><code>{{ typeLabel(a.type) }}</code></td>
+      <td>{{ a.description }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<button type="button" class="primary" (click)="load()" [disabled]="loading">Refresh alerts</button>

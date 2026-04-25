@@ -1,0 +1,16 @@
+<h2>Chat</h2>
+<p class="muted" *ngIf="projectId == null">Choose a project on the dashboard first.</p>
+<ng-container *ngIf="projectId != null">
+  <div class="row">
+    <label>
+      Message
+      <textarea [(ngModel)]="message" rows="4" class="msg"></textarea>
+    </label>
+  </div>
+  <button class="primary" (click)="send()" [disabled]="busy">Send</button>
+  <p class="muted" *ngIf="error">{{ error }}</p>
+  <div class="card" *ngIf="reply">
+    <h3>Reply</h3>
+    <pre class="raw">{{ reply }}</pre>
+  </div>
+</ng-container>

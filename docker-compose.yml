@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:15
+    container_name: intellisys_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-intellisys}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - intellisys_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-intellisys}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: intellisys_n8n
+    profiles:
+      - n8n
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    environment:
+      - N8N_HOST=${N8N_HOST:-0.0.0.0}
+      - N8N_PORT=5678
+      # Outbound HTTP (SSRF): allow local API. From this container use http://host.docker.internal:8000, not 127.0.0.1:8000.
+      - N8N_SSRF_ALLOWED_IP_RANGES=127.0.0.0/8,::1/128
+      - N8N_SSRF_ALLOWED_HOSTNAMES=host.docker.internal,localhost
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  intellisys_data:
+  n8n_data:

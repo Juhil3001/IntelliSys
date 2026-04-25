@@ -1,0 +1,60 @@
+.row {
+  margin-bottom: 0.6rem;
+}
+.row input.wide {
+  width: min(100%, 28rem);
+}
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.plist {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.75rem;
+}
+.plist li {
+  margin-bottom: 0.35rem;
+}
+.linkish {
+  background: none;
+  border: none;
+  color: #0284c7;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
+  text-decoration: underline;
+}
+.mono {
+  font-size: 0.8rem;
+  word-break: break-all;
+}
+.meta-line {
+  margin: 0.35rem 0;
+  font-size: 0.9rem;
+}
+.reg-hint {
+  margin: 0.5rem 0 0;
+  max-width: 40rem;
+}
+.project-id-line {
+  margin: 0.35rem 0;
+}
+.n8n-line {
+  margin: 0.25rem 0 0;
+  max-width: 44rem;
+}
+.n8n-line code {
+  display: block;
+  margin-top: 0.25rem;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-size: 0.8rem;
+}
