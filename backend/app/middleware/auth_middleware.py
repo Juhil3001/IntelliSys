@@ -12,6 +12,9 @@ def _is_public_path(path: str) -> bool:
         return True
     if path in ("/auth/register", "/auth/login"):
         return True
+    # n8n and other automations use X-IntelliSys-Secret only (no user JWT on that request).
+    if path == "/automation/n8n-webhook":
+        return True
     return False
 
 
