@@ -1,31 +1,79 @@
-<div class="page">
-  <h1 class="page-title">Issues</h1>
+<div class="page data-page">
+  <header class="page-head">
+    <div>
+      <h1 class="page-title">Issues</h1>
+      <p class="page-sub">Heuristic and AI-detected findings for the active project (including resolved history).</p>
+    </div>
+    <button type="button" class="btn btn-primary" (click)="load()" [disabled]="loading || api.projectId() == null">
+      Refresh
+    </button>
+  </header>
 
   <div class="surface empty-project" *ngIf="api.projectId() == null">
-    <p class="text-muted" style="margin: 0">Select a project on the Dashboard to list issues for that workspace.</p>
+    <p class="text-muted" style="margin: 0">
+      Select a project on <a routerLink="/projects" class="inline-link">Projects</a> first.
+    </p>
   </div>
 
   <ng-container *ngIf="api.projectId() != null">
-    <p class="text-muted" *ngIf="error">{{ error }}</p>
-    <p class="text-muted" *ngIf="!error && !rows.length">No issues — run recompute on the dashboard after calls exist.</p>
-    <table *ngIf="rows.length">
-      <thead>
-        <tr>
-          <th>Severity</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let r of rows">
-          <td>{{ r.severity }}</td>
-          <td><code>{{ r.type }}</code></td>
-          <td>{{ r.description }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <p style="margin-top: var(--space-4)">
-      <button type="button" class="btn btn-primary" (click)="load()">Refresh</button>
-    </p>
+    <p class="text-muted err-line" *ngIf="error">{{ error }}</p>
+
+    <div class="toolbar surface-toolbar" *ngIf="!error || rows.length">
+      <label class="search-field">
+        <span class="sr-only">Filter issues</span>
+        <input
+          type="search"
+          class="filter-input"
+          [(ngModel)]="filterText"
+          placeholder="Filter by description, type, severity…"
+          autocomplete="off"
+        />
+      </label>
+      <span class="count-pill" *ngIf="!loading">{{ filteredRows.length }} / {{ rows.length }} issues</span>
+      <span class="text-muted" *ngIf="loading">Loading…</span>
+    </div>
+
+    <div class="table-card" *ngIf="!loading && !rows.length">
+      <p class="empty-state text-muted">
+        No issues yet — run a scan and <a routerLink="/actions" class="inline-link">recompute</a> after traffic exists.
+      </p>
+    </div>
+
+    <div class="table-card" *ngIf="rows.length">
+      <div class="table-scroll">
+        <table class="data-table issues-table">
+          <thead>
+            <tr>
+              <th class="th-sev">Severity</th>
+              <th class="th-src">Source</th>
+              <th class="th-type">Type</th>
+              <th>Description</th>
+              <th class="th-action">Ask AI</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of filteredRows; let odd = odd" [class.row-alt]="odd" [class.row-resolved]="r.resolved">
+              <td>
+                <span class="sev-badge" [ngClass]="severityClass(r.severity)">{{ r.severity || '—' }}</span>
+              </td>
+              <td><span class="src-pill">{{ r.source || 'heuristic' }}</span></td>
+              <td class="mono type-cell"><code>{{ r.type }}</code></td>
+              <td class="desc-cell">
+                {{ r.description }}
+                <span *ngIf="r.resolved" class="resolved-tag">Resolved</span>
+              </td>
+              <td class="td-ask">
+                <a
+                  [routerLink]="['/chat']"
+                  [queryParams]="{ prompt: askAiPrompt(r) }"
+                  class="link-ask-ai"
+                  >Ask AI</a
+                >
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </ng-container>
 </div>

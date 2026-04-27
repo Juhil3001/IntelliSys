@@ -1,0 +1,53 @@
+<div class="page">
+  <h1 class="page-title">Evolution &amp; patterns</h1>
+  <div class="surface empty-project" *ngIf="api.projectId() == null">
+    <p class="text-muted">Select a project on the Dashboard or Projects first.</p>
+  </div>
+  <p class="text-muted" *ngIf="error">{{ error }}</p>
+  <p *ngIf="api.projectId() != null && loading">Loading…</p>
+
+  <ng-container *ngIf="api.projectId() != null && !loading">
+    <div class="surface">
+      <h2 class="section-title">Snapshot timeline</h2>
+      <table *ngIf="snapshots.length">
+        <thead>
+          <tr>
+            <th>Snapshot</th>
+            <th>When</th>
+            <th>Files</th>
+            <th>APIs</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of snapshots">
+            <td>#{{ s.snapshot_id }}</td>
+            <td>{{ s.created_at ? (s.created_at | date: 'medium') : '—' }}</td>
+            <td>{{ s.file_count }}</td>
+            <td>{{ s.api_count }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p *ngIf="!snapshots.length" class="text-muted">No snapshots yet — run a full scan with snapshot enabled.</p>
+    </div>
+    <div class="surface" style="margin-top: 1rem">
+      <h2 class="section-title">Recurring issue patterns</h2>
+      <table *ngIf="patterns.length">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Hits</th>
+            <th>Last seen</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of patterns">
+            <td><code>{{ p.issue_type }}</code></td>
+            <td>{{ p.hit_count }}</td>
+            <td>{{ p.last_seen_at ? (p.last_seen_at | date: 'medium') : '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p *ngIf="!patterns.length" class="text-muted">No patterns recorded yet (populated as issues are created).</p>
+    </div>
+  </ng-container>
+</div>

@@ -52,6 +52,7 @@ def recompute_issues_for_project(db: Session, project_id: int) -> int:
                     type="dead_api",
                     description=f"No calls recorded in the last {settings.default_dead_api_days} days for {key}",
                     severity=IssueSeverity.medium,
+                    source="heuristic",
                 )
             )
             n += 1
@@ -69,6 +70,7 @@ def recompute_issues_for_project(db: Session, project_id: int) -> int:
                         f"p95 latency {p95:.0f}ms (threshold {settings.slow_api_p95_ms}ms) for {key}"
                     ),
                     severity=IssueSeverity.high,
+                    source="heuristic",
                 )
             )
             n += 1

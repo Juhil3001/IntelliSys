@@ -10,6 +10,37 @@ export interface Project {
   default_branch?: string | null;
   last_commit_sha?: string | null;
   last_sync_at?: string | null;
+  alert_webhook_url?: string | null;
+  github_app_installation_id?: string | null;
+}
+
+/** Mirrors backend ScanRunOut / scan run JSON. */
+export interface ScanRunOut {
+  id: number;
+  project_id: number;
+  status: string;
+  source_root: string;
+  started_at: string | null;
+  finished_at: string | null;
+  error_message: string | null;
+}
+
+export interface ApiListRow {
+  id: number;
+  method: string;
+  endpoint: string;
+  name?: string | null;
+}
+
+export interface IssueListRow {
+  id: number;
+  type: string;
+  description: string;
+  severity: string | null;
+  resolved?: boolean;
+  source?: string;
+  external_url?: string | null;
+  api_id?: number | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -46,6 +77,67 @@ export class IntellisysApiService {
     return this.http.delete<void>(`${this._base}/projects/${id}`);
   }
 
+  patchProject(
+    id: number,
+    body: { alert_webhook_url?: string | null; github_app_installation_id?: string | null }
+  ) {
+    return this.http.patch<Project>(`${this._base}/projects/${id}`, body);
+  }
+
+  getErrorSummary(projectId: number, hours = 24) {
+    return this.http.get<{
+      project_id: number;
+      hours: number;
+      total_calls: number;
+      error_count: number;
+      error_rate: number;
+    }>(`${this._base}/monitor/error-summary?project_id=${projectId}&hours=${hours}`);
+  }
+
+  getMetrics(projectId: number, hours = 168) {
+    return this.http.get<
+      {
+        api_id: number;
+        call_count: number;
+        error_count: number;
+        error_rate: number;
+        avg_response_ms: number;
+        p95_response_ms: number;
+      }[]
+    >(`${this._base}/monitor/metrics?project_id=${projectId}&hours=${hours}`);
+  }
+
+  getTimeline(projectId: number) {
+    return this.http.get<{
+      project_id: number;
+      snapshots: {
+        snapshot_id: number;
+        created_at: string | null;
+        scan_run_id: number;
+        file_count: number;
+        api_count: number;
+      }[];
+      recurring_patterns: {
+        issue_type: string;
+        fingerprint: string;
+        hit_count: number;
+        last_seen_at: string | null;
+      }[];
+    }>(`${this._base}/projects/${projectId}/timeline`);
+  }
+
+  getProjectGraph(projectId: number) {
+    return this.http.get<Record<string, unknown>>(`${this._base}/projects/${projectId}/graph`);
+  }
+
+  exportIssueToGithub(issueId: number) {
+    return this.http.post<{
+      html_url: string | null;
+      github_number: number;
+      issue_id: number;
+    }>(`${this._base}/issues/${issueId}/github-export`, {});
+  }
+
   readStoredId(): number | null {
     if (typeof localStorage === 'undefined') return null;
     const s = localStorage.getItem('intellisys_project_id');
@@ -72,11 +164,15 @@ export class IntellisysApiService {
   }
 
   startScan(projectId: number, sourceRoot?: string, withSnapshot = true) {
-    return this.http.post(`${this._base}/scans`, {
+    return this.http.post<ScanRunOut>(`${this._base}/scans`, {
       project_id: projectId,
       source_root: sourceRoot ?? null,
       with_snapshot: withSnapshot,
     });
+  }
+
+  patchIssue(issueId: number, body: { resolved: boolean }) {
+    return this.http.patch<IssueListRow>(`${this._base}/issues/${issueId}`, body);
   }
 
   syncAndScan(projectId: number, withSnapshot = true) {

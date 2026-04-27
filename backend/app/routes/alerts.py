@@ -54,6 +54,7 @@ def list_alerts(
                 "description": i.description,
                 "severity": sev,
                 "api_id": i.api_id,
+                "source": getattr(i, "source", "heuristic") or "heuristic",
                 "created_at": i.created_at.isoformat() if i.created_at else None,
             }
         )

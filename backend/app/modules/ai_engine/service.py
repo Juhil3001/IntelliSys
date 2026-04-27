@@ -4,7 +4,8 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
-from app.models import AiInsight, Api, ApiCall, Issue, Project, ScanRun, ScanStatus
+from app.models import AiInsight, Api, ApiCall, Issue, Project, ScanRun, ScanStatus, Snapshot
+from app.modules.change_detection.service import diff_snapshots
 
 settings = get_settings()
 
@@ -48,10 +49,40 @@ def build_project_context(db: Session, project_id: int) -> str:
             ).scalar()
             or 0
         )
-        lines.append(f"- {a.method} {a.endpoint} (total calls: {n})")
+        err_n = (
+            db.execute(
+                select(func.count())
+                .select_from(ApiCall)
+                .where(ApiCall.api_id == a.id, ApiCall.is_error.is_(True))
+            ).scalar()
+            or 0
+        )
+        h = a.content_hash or "n/a"
+        lines.append(
+            f"- {a.method} {a.endpoint} (total calls: {n}, errors: {err_n}, hash: {h})"
+        )
+    snaps = list(
+        db.execute(
+            select(Snapshot)
+            .where(Snapshot.project_id == project_id)
+            .order_by(Snapshot.id.desc())
+            .limit(2)
+        )
+        .scalars()
+        .all()
+    )
+    if len(snaps) >= 2:
+        d = diff_snapshots(snaps[1].data, snaps[0].data)
+        upd = d.get("updated_apis") or []
+        lines.append(
+            f"Snapshot diff: {len(d.get('added_apis', []))} added, "
+            f"{len(d.get('removed_apis', []))} removed, "
+            f"{len(upd)} APIs with changed hash, changed_files={d.get('changed_files', 0)}"
+        )
     lines.append("Open issues:")
     for i in issues:
-        lines.append(f"- [{i.severity}] {i.type}: {i.description[:200]}")
+        src = getattr(i, "source", "heuristic") or "heuristic"
+        lines.append(f"- [{i.severity}] ({src}) {i.type}: {i.description[:200]}")
     return "\n".join(lines)
 
 
@@ -64,13 +95,14 @@ def generate_insight_for_project(db: Session, project_id: int) -> AiInsight:
     rec = "Configure the OpenAI API key in your environment, then re-run this endpoint."
     model_name = "none"
 
-    if settings.openai_api_key.strip():
+    if settings.openai_api_key_effective:
         try:
             from openai import OpenAI
 
-            client = OpenAI(api_key=settings.openai_api_key)
+            client = OpenAI(api_key=settings.openai_api_key_effective)
+            model_name = (settings.ai_issues_model or "gpt-4o-mini").strip() or "gpt-4o-mini"
             resp = client.chat.completions.create(
-                model="gpt-4o-mini",
+                model=model_name,
                 messages=[
                     {
                         "role": "system",
@@ -88,7 +120,6 @@ def generate_insight_for_project(db: Session, project_id: int) -> AiInsight:
                 max_tokens=800,
             )
             text = (resp.choices[0].message.content or "").strip()
-            model_name = "gpt-4o-mini"
             parts = text.split("\n\n", 1)
             summary = parts[0][:2000] if parts else text[:2000]
             rec = parts[1][:4000] if len(parts) > 1 else ""

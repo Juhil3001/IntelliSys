@@ -1,5 +1,4 @@
 import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
@@ -39,7 +38,6 @@ export interface QuickAlertItem {
   styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent implements OnInit {
-  aiSummary = '';
   systemLive = false;
   healthLabel = 'Checking…';
   mEndpoints = 0;
@@ -48,6 +46,8 @@ export class DashboardComponent implements OnInit {
   mChange = 0;
   mAvgLabel = '—';
   mIssueTotal = 0;
+  /** Error rate last 24h (0–1) from monitor/error-summary */
+  mErrorRate: number | null = null;
   metricsReady = false;
   apis: ApiRow[] = [];
   issues: IssueRow[] = [];
@@ -101,10 +101,14 @@ export class DashboardComponent implements OnInit {
       this.mChange = 0;
       this.mIssueTotal = 0;
       this.mAvgLabel = '—';
+      this.mErrorRate = null;
       return;
     }
 
     forkJoin({
+      errSum: this.api.getErrorSummary(id, 24).pipe(
+        catchError(() => of({ error_rate: 0, total_calls: 0 } as { error_rate: number; total_calls: number }))
+      ),
       apis: this.api.listApis(id).pipe(
         map((r) => (r as ApiRow[]) || []),
         catchError(() => of([] as ApiRow[]))
@@ -123,7 +127,8 @@ export class DashboardComponent implements OnInit {
         )
       ),
     }).subscribe({
-      next: ({ apis, issues, alerts }) => {
+      next: ({ errSum, apis, issues, alerts }) => {
+        this.mErrorRate = errSum.total_calls > 0 ? errSum.error_rate : null;
         this.apis = apis;
         this.issues = issues as IssueRow[];
         this.mEndpoints = apis.length;
@@ -231,22 +236,15 @@ export class DashboardComponent implements OnInit {
     return 'm-get';
   }
 
-  generateAi() {
-    const id = this.projectId;
-    if (id == null) {
-      return;
-    }
-    this.api.generateAi(id).subscribe({
-      next: (r) => {
-        this.aiSummary = `${r.summary}\n\n${r.recommendation}`;
-      },
-      error: (e: unknown) => {
-        this.aiSummary = e instanceof HttpErrorResponse ? this.fmt(e) : `Error: ${String(e)}`;
-      },
-    });
-  }
-
-  private fmt(e: HttpErrorResponse): string {
-    return `Error: ${e.error?.detail ?? e.message ?? 'request failed'}`;
+  askAiPromptForEndpoint(r: {
+    method: string;
+    endpoint: string;
+    status: MonitorStatus;
+    responseLabel: string;
+  }): string {
+    return (
+      `Explain this API endpoint and what to check first. ` +
+      `Method: ${r.method}, path: ${r.endpoint}, monitor status: ${r.status}, response hint: ${r.responseLabel}.`
+    );
   }
 }

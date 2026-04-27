@@ -1,3 +1,7 @@
+import datetime
+import math
+from collections import defaultdict
+
 from pydantic import BaseModel, Field
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -78,3 +82,74 @@ def list_calls(
             }
         )
     return out
+
+
+@router.get("/metrics")
+def metrics_aggregate(
+    project_id: int = Query(..., description="IntelliSys project id"),
+    hours: int = Query(24 * 7, le=24 * 90, description="Lookback in hours (max ~90d)"),
+    db: Session = Depends(get_db),
+) -> list[dict]:
+    """Per-API call counts, error rate, p95 and avg latency in the time window."""
+    p = db.get(Project, project_id)
+    if not p:
+        raise HTTPException(status_code=404, detail="Project not found")
+    since = datetime.datetime.now(datetime.UTC) - datetime.timedelta(hours=hours)
+    q = (
+        select(ApiCall)
+        .where(ApiCall.project_id == project_id, ApiCall.timestamp >= since)
+        .order_by(ApiCall.id).limit(50_000)
+    )
+    calls = list(db.execute(q).scalars().all())
+    by_api: dict[int, list[float]] = defaultdict(list)
+    err_n: dict[int, int] = defaultdict(int)
+    for c in calls:
+        by_api[c.api_id].append(float(c.response_time_ms))
+        if c.is_error:
+            err_n[c.api_id] += 1
+    out: list[dict] = []
+    for api_id, times in by_api.items():
+        times.sort()
+        n = len(times)
+        p95 = times[min(n - 1, max(0, math.ceil(0.95 * n) - 1))] if n else 0.0
+        out.append(
+            {
+                "api_id": api_id,
+                "call_count": n,
+                "error_count": err_n[api_id],
+                "error_rate": err_n[api_id] / n if n else 0.0,
+                "avg_response_ms": sum(times) / n if n else 0.0,
+                "p95_response_ms": p95,
+            }
+        )
+    return sorted(out, key=lambda r: r["api_id"])
+
+
+@router.get("/error-summary")
+def error_rate_summary(
+    project_id: int = Query(...),
+    hours: int = Query(24, le=24 * 30),
+    db: Session = Depends(get_db),
+) -> dict:
+    p = db.get(Project, project_id)
+    if not p:
+        raise HTTPException(status_code=404, detail="Project not found")
+    since = datetime.datetime.now(datetime.UTC) - datetime.timedelta(hours=hours)
+    calls = list(
+        db.execute(
+            select(ApiCall).where(
+                ApiCall.project_id == project_id, ApiCall.timestamp >= since
+            )
+        )
+        .scalars()
+        .all()
+    )
+    n = len(calls)
+    err = sum(1 for c in calls if c.is_error)
+    return {
+        "project_id": project_id,
+        "hours": hours,
+        "total_calls": n,
+        "error_count": err,
+        "error_rate": err / n if n else 0.0,
+    }

@@ -29,5 +29,12 @@ class ProjectOut(BaseModel):
     default_branch: str = "main"
     last_commit_sha: str | None = None
     last_sync_at: datetime.datetime | None = None
+    alert_webhook_url: str | None = None
+    github_app_installation_id: str | None = None
 
     model_config = {"from_attributes": True}
+
+
+class ProjectPatch(BaseModel):
+    alert_webhook_url: str | None = None
+    github_app_installation_id: str | None = None

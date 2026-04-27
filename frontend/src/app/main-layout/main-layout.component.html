@@ -56,6 +56,13 @@
       </div>
 
       <nav class="rail-group" aria-label="Product">
+        <a routerLink="/projects" routerLinkActive="active" class="rail-link" (click)="closeNav()">
+          <span class="rail-ic-wrap" aria-hidden="true"
+            ><svg class="rail-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+              <path d="M4 4h6v6H4V4zM14 4h6v6h-6V4zM4 14h6v6H4v-6zM16 16l-2 2h5v-5" /></svg
+          ></span>
+          <span class="rail-txt">Projects</span>
+        </a>
         <a routerLink="/dashboard" routerLinkActive="active" class="rail-link" (click)="closeNav()">
           <span class="rail-ic-wrap" aria-hidden="true"
             ><svg class="rail-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
@@ -65,6 +72,14 @@
               <rect x="14" y="14" width="7" height="7" rx="1" /></svg
           ></span>
           <span class="rail-txt">Dashboard</span>
+        </a>
+        <a routerLink="/actions" routerLinkActive="active" class="rail-link" (click)="closeNav()">
+          <span class="rail-ic-wrap" aria-hidden="true"
+            ><svg class="rail-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+              <path d="M5 3v4M19 3v4M5 11h14M5 7h8M5 19h4M19 19h-3" />
+              <path d="M9 19l3-3 3 3" /></svg
+          ></span>
+          <span class="rail-txt">Actions</span>
         </a>
         <a routerLink="/apis" routerLinkActive="active" class="rail-link" (click)="closeNav()">
           <span class="rail-ic-wrap" aria-hidden="true"
@@ -89,20 +104,23 @@
           ></span>
           <span class="rail-txt">Alerts</span>
         </a>
-        <a routerLink="/projects" routerLinkActive="active" class="rail-link" (click)="closeNav()">
+        <a routerLink="/evolution" routerLinkActive="active" class="rail-link" (click)="closeNav()">
           <span class="rail-ic-wrap" aria-hidden="true"
             ><svg class="rail-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-              <path d="M4 4h6v6H4V4zM14 4h6v6h-6V4zM4 14h6v6H4v-6zM16 16l-2 2h5v-5" /></svg
+              <path d="M3 12h4l2-5 2 5h4" />
+              <path d="M3 5h18" /></svg
           ></span>
-          <span class="rail-txt">Projects</span>
+          <span class="rail-txt">Evolution</span>
         </a>
-        <a routerLink="/actions" routerLinkActive="active" class="rail-link" (click)="closeNav()">
+        <a routerLink="/system-map" routerLinkActive="active" class="rail-link" (click)="closeNav()">
           <span class="rail-ic-wrap" aria-hidden="true"
             ><svg class="rail-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-              <path d="M5 3v4M19 3v4M5 11h14M5 7h8M5 19h4M19 19h-3" />
-              <path d="M9 19l3-3 3 3" /></svg
+              <circle cx="6" cy="6" r="2" />
+              <circle cx="18" cy="6" r="2" />
+              <circle cx="12" cy="18" r="2" />
+              <path d="M6 8v4l3 2M12 6h4M12 8v4M18 8v4" /></svg
           ></span>
-          <span class="rail-txt">Actions</span>
+          <span class="rail-txt">Map</span>
         </a>
       </nav>
       <div class="rail-divider" role="separator"></div>

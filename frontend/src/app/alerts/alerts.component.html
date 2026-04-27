@@ -1,16 +1,25 @@
-<div class="page">
-  <h1 class="page-title">Alerts</h1>
-  <p class="lead">
-    Open issues for the active project (unresolved). Run <strong>Recompute issues</strong> on the Dashboard
-    after scans and traffic so dead and slow API alerts stay up to date.
-  </p>
+<div class="page data-page">
+  <header class="page-head">
+    <div>
+      <h1 class="page-title">Alerts</h1>
+      <p class="page-sub">
+        Open, unresolved issues for the active project. Resolve items here to dismiss them from this list (they remain
+        visible on <a routerLink="/issues" class="inline-link">Issues</a> as resolved).
+      </p>
+    </div>
+    <button type="button" class="btn btn-primary" (click)="load()" [disabled]="loading || api.projectId() == null">
+      Refresh
+    </button>
+  </header>
 
   <div class="surface empty-project" *ngIf="api.projectId() == null">
-    <p class="text-muted" style="margin: 0">Select a project on the Dashboard to load alerts for that workspace.</p>
+    <p class="text-muted" style="margin: 0">
+      Select a project on <a routerLink="/projects" class="inline-link">Projects</a> first.
+    </p>
   </div>
 
   <ng-container *ngIf="api.projectId() != null">
-    <p class="text-muted" *ngIf="error">{{ error }}</p>
+    <p class="text-muted err-line" *ngIf="error">{{ error }}</p>
     <p *ngIf="loading" class="text-muted">Loading…</p>
 
     <ng-container *ngIf="summary && !loading">
@@ -32,32 +41,64 @@
           <span class="l">Low</span>
         </div>
       </div>
-      <p class="total">Total active alerts: <strong>{{ summary.total }}</strong></p>
+      <p class="total">
+        Total active alerts: <strong>{{ summary.total }}</strong>
+      </p>
     </ng-container>
 
-    <div *ngIf="!items.length && !error && !loading && summary" class="surface empty">
-      <p style="margin: 0" class="text-muted">No open alerts. Your project has no unresolved issues, or recompute has not been run yet.</p>
+    <div class="toolbar surface-toolbar" *ngIf="summary && !loading && items.length">
+      <label class="search-field">
+        <span class="sr-only">Filter alerts</span>
+        <input
+          type="search"
+          class="filter-input"
+          [(ngModel)]="filterText"
+          placeholder="Filter by description or type…"
+          autocomplete="off"
+        />
+      </label>
+      <span class="count-pill">{{ filteredItems.length }} shown</span>
     </div>
 
-    <table *ngIf="items.length" class="alert-table">
-      <thead>
-        <tr>
-          <th>Severity</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let a of items" [class]="'row-' + a.severity">
-          <td><span class="badge" [ngClass]="severityClass(a.severity)">{{ a.severity }}</span></td>
-          <td><code>{{ typeLabel(a.type) }}</code></td>
-          <td>{{ a.description }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-card" *ngIf="!items.length && !error && !loading && summary">
+      <p class="empty-state text-muted">
+        No open alerts. Run <a routerLink="/actions" class="inline-link">recompute</a> after scans and traffic.
+      </p>
+    </div>
 
-    <p style="margin-top: var(--space-4)">
-      <button type="button" class="btn btn-primary" (click)="load()" [disabled]="loading">Refresh alerts</button>
-    </p>
+    <div class="table-card" *ngIf="items.length">
+      <div class="table-scroll">
+        <table class="data-table alert-table">
+          <thead>
+            <tr>
+              <th class="th-sev">Severity</th>
+              <th class="th-type">Type</th>
+              <th>Description</th>
+              <th class="th-action">Manage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let a of filteredItems; let odd = odd" [class.row-alt]="odd" [ngClass]="'row-' + a.severity">
+              <td>
+                <span class="badge" [ngClass]="severityClass(a.severity)">{{ a.severity }}</span>
+              </td>
+              <td class="mono"><code>{{ typeLabel(a.type) }}</code></td>
+              <td class="desc-cell">{{ a.description }}</td>
+              <td class="td-actions">
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-sm"
+                  [disabled]="resolveBusy[a.id]"
+                  (click)="resolveAlert(a)"
+                  title="Mark resolved — removes from alerts"
+                >
+                  Resolve
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </ng-container>
 </div>

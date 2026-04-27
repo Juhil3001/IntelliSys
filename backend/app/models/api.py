@@ -28,6 +28,7 @@ class Api(Base):
     endpoint: Mapped[str] = mapped_column(Text, nullable=False)
     # Optional: router prefix + path for display
     path_pattern: Mapped[str | None] = mapped_column(Text, nullable=True)
+    content_hash: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
 
     scan_run: Mapped["ScanRun"] = relationship("ScanRun", back_populates="apis")
     file: Mapped["FileRecord"] = relationship("FileRecord", back_populates="apis")

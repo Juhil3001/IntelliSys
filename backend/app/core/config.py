@@ -5,10 +5,14 @@ from pathlib import Path
 from pydantic import AliasChoices, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# Always load .env from the backend/ package root (avoids CWD: running uvicorn from repo root
+# would otherwise miss backend/.env).
+_BACKEND_ROOT = Path(__file__).resolve().parent.parent.parent
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=_BACKEND_ROOT / ".env",
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -39,7 +43,14 @@ class Settings(BaseSettings):
         r"(^https?://(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?$)|"
         r"(^https://[a-zA-Z0-9.-]+\.onrender\.com$)"
     )
-    openai_api_key: str = ""
+    openai_api_key: str = Field(
+        default="",
+        validation_alias=AliasChoices("OPENAI_API_KEY", "openai_api_key"),
+    )
+    ai_issues_enabled: bool = True
+    use_heuristic_issues: bool = True
+    ai_issues_model: str = "gpt-4o-mini"
+    ai_max_file_paths: int = 200
     automation_webhook_secret: str = "change-me-in-production"
     log_level: str = "INFO"
     default_dead_api_days: int = 14
@@ -57,6 +68,14 @@ class Settings(BaseSettings):
     jwt_secret: str = "intellisys-dev-secret-change-in-production"
     jwt_algorithm: str = "HS256"
     jwt_exp_hours: int = 24 * 7
+
+    @property
+    def openai_api_key_effective(self) -> str:
+        """Key from .env, field, or process environment (Render/shell can set OPENAI_API_KEY)."""
+        t = (self.openai_api_key or "").strip()
+        if t:
+            return t
+        return (os.environ.get("OPENAI_API_KEY") or os.environ.get("openai_api_key") or "").strip()
 
     @property
     def github_token_effective(self) -> str:

@@ -1,31 +1,72 @@
-<div class="page">
-  <h1 class="page-title">APIs</h1>
+<div class="page data-page">
+  <header class="page-head">
+    <div>
+      <h1 class="page-title">API routes</h1>
+      <p class="page-sub">Discovered HTTP endpoints from the latest scan for the active project.</p>
+    </div>
+    <button type="button" class="btn btn-primary" (click)="load()" [disabled]="loading || api.projectId() == null">
+      Refresh
+    </button>
+  </header>
 
   <div class="surface empty-project" *ngIf="api.projectId() == null">
-    <p class="text-muted" style="margin: 0">Select a project on the Dashboard to list discovered API routes for that workspace.</p>
+    <p class="text-muted" style="margin: 0">
+      Select or create a project on <a routerLink="/projects" class="inline-link">Projects</a> first.
+    </p>
   </div>
 
   <ng-container *ngIf="api.projectId() != null">
-    <p class="text-muted" *ngIf="error">{{ error }}</p>
-    <p class="text-muted" *ngIf="!error && !rows.length">No routes yet — run a scan on the dashboard.</p>
-    <table *ngIf="rows.length">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Method</th>
-          <th>Endpoint</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let r of rows">
-          <td>{{ r.id }}</td>
-          <td><code>{{ r.method }}</code></td>
-          <td><code>{{ r.endpoint }}</code></td>
-        </tr>
-      </tbody>
-    </table>
-    <p style="margin-top: var(--space-4)">
-      <button type="button" class="btn btn-primary" (click)="load()">Refresh</button>
-    </p>
+    <p class="text-muted err-line" *ngIf="error">{{ error }}</p>
+
+    <div class="toolbar surface-toolbar" *ngIf="!error || rows.length">
+      <label class="search-field">
+        <span class="sr-only">Filter routes</span>
+        <input
+          type="search"
+          class="filter-input"
+          [(ngModel)]="filterText"
+          placeholder="Filter by path, method, or ID…"
+          autocomplete="off"
+        />
+      </label>
+      <span class="count-pill" *ngIf="!loading">{{ filteredRows.length }} / {{ rows.length }} routes</span>
+      <span class="text-muted" *ngIf="loading">Loading…</span>
+    </div>
+
+    <div class="table-card" *ngIf="!loading && !rows.length">
+      <p class="empty-state text-muted">No routes yet — run a scan from <a routerLink="/actions" class="inline-link">Actions</a>.</p>
+    </div>
+
+    <div class="table-card" *ngIf="rows.length">
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="th-narrow">ID</th>
+              <th class="th-method">Method</th>
+              <th>Endpoint</th>
+              <th class="th-action">Ask AI</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of filteredRows; let odd = odd" [class.row-alt]="odd">
+              <td class="mono muted">{{ r.id }}</td>
+              <td>
+                <span class="method-badge" [ngClass]="methodBadgeClass(r.method)">{{ r.method }}</span>
+              </td>
+              <td class="td-endpoint"><code>{{ r.endpoint }}</code></td>
+              <td>
+                <a
+                  [routerLink]="['/chat']"
+                  [queryParams]="{ prompt: askAiPrompt(r) }"
+                  class="link-ask-ai"
+                  >Ask AI</a
+                >
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </ng-container>
 </div>

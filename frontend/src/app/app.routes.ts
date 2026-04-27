@@ -12,6 +12,8 @@ import { SettingsComponent } from './settings/settings.component';
 import { ProfileComponent } from './settings/profile.component';
 import { LoginComponent } from './auth/login.component';
 import { RegisterComponent } from './auth/register.component';
+import { EvolutionComponent } from './evolution/evolution.component';
+import { SystemMapComponent } from './system-map/system-map.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
@@ -29,6 +31,8 @@ export const routes: Routes = [
       { path: 'chat', component: ChatComponent },
       { path: 'projects', component: ProjectsComponent },
       { path: 'actions', component: ActionsComponent },
+      { path: 'evolution', component: EvolutionComponent },
+      { path: 'system-map', component: SystemMapComponent },
       { path: 'settings/profile', component: ProfileComponent },
       { path: 'settings', component: SettingsComponent },
     ],

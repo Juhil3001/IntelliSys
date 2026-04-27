@@ -9,6 +9,8 @@ from app.models.log import LogRecord
 from app.models.ai_insight import AiInsight
 from app.models.chat_message import ChatMessage
 from app.models.user import User
+from app.models.project_dependency import ProjectDependency
+from app.models.issue_pattern import IssuePattern
 
 __all__ = [
     "Project",
@@ -24,4 +26,6 @@ __all__ = [
     "AiInsight",
     "ChatMessage",
     "User",
+    "ProjectDependency",
+    "IssuePattern",
 ]

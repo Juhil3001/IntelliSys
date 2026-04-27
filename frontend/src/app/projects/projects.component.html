@@ -1,9 +1,16 @@
-<div class="page">
-  <h1 class="page-title">Projects</h1>
-  <p class="text-muted form-lead">Connect a <strong>local path</strong> and/or a <strong>GitHub</strong> repo. For private GitHub, set <code>GITHUB_TOKEN</code> in <code>backend/.env</code>.</p>
+<div class="page projects-page">
+  <header class="page-hero surface-hero">
+    <div class="hero-copy">
+      <h1 class="page-title hero-title">Projects</h1>
+      <p class="hero-lead text-muted">
+        Connect a <strong>local path</strong> and/or <strong>GitHub</strong> repository. For private GitHub, set
+        <code>GITHUB_TOKEN</code> in <code>backend/.env</code>.
+      </p>
+    </div>
+  </header>
 
-  <div class="surface form-card">
-    <h2 class="section-title">Connect project</h2>
+  <section class="surface form-section">
+    <h2 class="section-heading">Register workspace</h2>
     <div class="form-stack">
       <label class="field">
         <span class="field-label">Name</span>
@@ -16,7 +23,7 @@
       <label class="field">
         <span class="field-label">GitHub URL</span>
         <input [(ngModel)]="githubUrl" class="input-full" placeholder="https://github.com/org/repo" />
-        <span class="text-muted small-hint">Use the repo home URL (not the <code>/tree/…</code> page from the browser).</span>
+        <span class="text-muted small-hint">Use the repo home URL (not the <code>/tree/…</code> page).</span>
       </label>
       <label class="field" *ngIf="githubUrl.trim()">
         <span class="field-label">Default branch</span>
@@ -24,41 +31,71 @@
       </label>
     </div>
     <p class="form-actions">
-      <button type="button" class="btn btn-primary" (click)="createProject()" [disabled]="busy || !canRegister">Register project</button>
+      <button type="button" class="btn btn-primary" (click)="createProject()" [disabled]="busy || !canRegister">
+        Register project
+      </button>
     </p>
     <p *ngIf="lastAction && lastAction.startsWith('Created project')" class="text-muted n8n-line">
       {{ lastAction }} — n8n: <code>daily_scan</code> / <code>full_scan</code> with that <code>project_id</code>.
     </p>
-  </div>
+  </section>
 
-  <div class="surface" *ngIf="projects.length">
-    <h2 class="section-title">Your projects</h2>
-    <ul class="project-list" role="list">
-      <li *ngFor="let p of projects" class="project-row">
-        <div class="project-row-main">
-          <div class="project-row-title">
+  <section class="surface list-section" *ngIf="projects.length">
+    <div class="section-head">
+      <h2 class="section-heading">Your projects</h2>
+      <span class="badge-count">{{ projects.length }} total</span>
+    </div>
+    <ul class="project-grid" role="list">
+      <li *ngFor="let p of projects" class="project-card" [class.project-card-active]="projectId === p.id">
+        <div class="project-card-body">
+          <div class="project-card-title">
             <span class="id-badge">#{{ p.id }}</span>
             <span class="project-name">{{ p.name }}</span>
           </div>
-          <p *ngIf="p.github_repo_url" class="text-muted project-meta" [title]="p.github_repo_url || ''">{{ p.github_repo_url }}</p>
+          <p *ngIf="p.github_repo_url" class="text-muted project-meta" [title]="p.github_repo_url || ''">
+            {{ p.github_repo_url }}
+          </p>
           <p class="text-muted project-meta mono" [title]="p.root_path">{{ p.root_path }}</p>
         </div>
-        <div class="project-row-actions">
-          <button type="button" class="btn btn-ghost btn-sm" (click)="useProject(p.id)">Use</button>
+        <div class="project-card-actions">
+          <button type="button" class="btn btn-primary btn-sm" *ngIf="projectId !== p.id" (click)="useProject(p.id)">
+            Set active
+          </button>
+          <span class="active-pill" *ngIf="projectId === p.id">Active</span>
           <button type="button" class="btn btn-danger btn-sm" (click)="deleteProject(p, $event)">Delete</button>
         </div>
       </li>
     </ul>
-    <p *ngIf="projectId != null" class="n8n-line text-muted">Active — example webhook: <code>{{ n8nBodyExample }}</code></p>
-  </div>
+    <p *ngIf="projectId != null" class="n8n-line text-muted">Webhook example: <code>{{ n8nBodyExample }}</code></p>
+  </section>
 
-  <div class="surface" *ngIf="activeProject as ap">
-    <h2 class="section-title">Active project</h2>
-    <p *ngIf="ap.github_repo_url" class="meta-line"><strong>GitHub:</strong> {{ ap.github_repo_url }} ({{ ap.default_branch || 'main' }})</p>
-    <p *ngIf="ap.last_commit_sha" class="meta-line"><strong>Last commit:</strong> <code>{{ ap.last_commit_sha | slice: 0:7 }}…</code></p>
-    <p *ngIf="ap.last_sync_at" class="meta-line"><strong>Last sync:</strong> {{ ap.last_sync_at | date: 'medium' }}</p>
-    <p *ngIf="!ap.github_repo_url" class="text-muted">Local project — scanning uses the path above.</p>
-  </div>
+  <section class="surface detail-section" *ngIf="activeProject as ap">
+    <h2 class="section-heading">Active project details</h2>
+    <div class="detail-grid">
+      <p *ngIf="ap.github_repo_url" class="meta-line">
+        <strong>GitHub</strong> {{ ap.github_repo_url }} ({{ ap.default_branch || 'main' }})
+      </p>
+      <p *ngIf="ap.last_commit_sha" class="meta-line">
+        <strong>Last commit</strong> <code>{{ ap.last_commit_sha | slice: 0:7 }}…</code>
+      </p>
+      <p *ngIf="ap.last_sync_at" class="meta-line"><strong>Last sync</strong> {{ ap.last_sync_at | date: 'medium' }}</p>
+      <p *ngIf="!ap.github_repo_url" class="text-muted">Local project — scanning uses the path above.</p>
+    </div>
+    <div class="form-stack webhook-stack">
+      <label class="field">
+        <span class="field-label">Alert webhook (optional)</span>
+        <input
+          [(ngModel)]="alertWebhook"
+          class="input-full"
+          placeholder="https://hooks.slack.com/... or Teams incoming webhook"
+        />
+        <span class="text-muted small-hint">High/critical AI issues POST JSON here after each scan.</span>
+      </label>
+      <p class="form-actions">
+        <button type="button" class="btn btn-primary" (click)="saveAlertWebhook()" [disabled]="busy">Save webhook</button>
+      </p>
+    </div>
+  </section>
 
-  <p *ngIf="lastAction && !lastAction.startsWith('Created project')" class="text-muted" style="margin-top: 0.75rem">{{ lastAction }}</p>
+  <p *ngIf="lastAction && !lastAction.startsWith('Created project')" class="text-muted status-footer">{{ lastAction }}</p>
 </div>

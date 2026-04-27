@@ -1,6 +1,10 @@
 <div class="page act-page">
-  <h1 class="page-title">Workspace actions</h1>
-  <p class="text-muted" *ngIf="projectId == null">Select a project on the <a routerLink="/projects" class="inline-link">Projects</a> page first.</p>
+  <header class="act-header">
+    <h1 class="page-title">Workspace actions</h1>
+    <p class="text-muted act-lead" *ngIf="projectId == null">
+      Select a project on the <a routerLink="/projects" class="inline-link">Projects</a> page first.
+    </p>
+  </header>
 
   <div class="act-layout" *ngIf="projectId != null">
     <div class="act-nav">
@@ -42,7 +46,32 @@
             <button type="button" class="btn btn-primary" (click)="runAi()" [disabled]="busy">Generate insight</button>
             <pre class="raw ai-block" *ngIf="aiSummary && selected === 'ai'">{{ aiSummary }}</pre>
           </div>
-          <p *ngIf="lastResult" class="act-result text-muted"><strong>Result:</strong> {{ lastResult }}</p>
+
+          <div class="result-card surface-result" *ngIf="resultError">
+            <h3 class="result-title result-err">Error</h3>
+            <pre class="result-pre">{{ resultError }}</pre>
+          </div>
+
+          <div class="result-card surface-result" *ngIf="selected === 'scan' && scanRun">
+            <h3 class="result-title">Scan completed</h3>
+            <dl class="result-dl">
+              <div><dt>Scan ID</dt><dd class="mono">{{ scanRun.id }}</dd></div>
+              <div><dt>Status</dt><dd><code>{{ scanRun.status }}</code></dd></div>
+              <div><dt>Source root</dt><dd class="mono wrap">{{ scanRun.source_root }}</dd></div>
+              <div><dt>Started</dt><dd>{{ scanRun.started_at || '—' }}</dd></div>
+              <div><dt>Finished</dt><dd>{{ scanRun.finished_at || '—' }}</dd></div>
+              <div *ngIf="scanRun.error_message"><dt>Error</dt><dd class="result-err-txt">{{ scanRun.error_message }}</dd></div>
+              <div *ngIf="discoveredApiCount != null">
+                <dt>API routes (current project)</dt>
+                <dd><strong>{{ discoveredApiCount }}</strong> discovered — see <a routerLink="/apis" class="inline-link">APIs</a></dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="result-card surface-result" *ngIf="lastResult && selected !== 'scan'">
+            <h3 class="result-title">Result</h3>
+            <pre class="result-pre">{{ lastResult }}</pre>
+          </div>
         </div>
       </ng-container>
     </div>

@@ -1,12 +1,14 @@
+from typing import Any
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.db.session import get_db
-from app.models import Project
+from app.models import IssuePattern, Project, ScanRun, ScanStatus, Snapshot
 from app.modules.project_pipeline import execute_project_scan_pipeline
-from app.schemas.project import ProjectCreate, ProjectOut
+from app.schemas.project import ProjectCreate, ProjectOut, ProjectPatch
 
 router = APIRouter()
 settings = get_settings()
@@ -62,6 +64,107 @@ def get_project(project_id: int, db: Session = Depends(get_db)) -> Project:
     if not p:
         raise HTTPException(status_code=404, detail="Project not found")
     return p
+
+
+@router.patch("/{project_id}", response_model=ProjectOut)
+def patch_project(
+    project_id: int, body: ProjectPatch, db: Session = Depends(get_db)
+) -> Project:
+    p = db.get(Project, project_id)
+    if not p:
+        raise HTTPException(status_code=404, detail="Project not found")
+    if body.alert_webhook_url is not None:
+        p.alert_webhook_url = body.alert_webhook_url.strip() or None
+    if body.github_app_installation_id is not None:
+        p.github_app_installation_id = (body.github_app_installation_id or "").strip() or None
+    db.add(p)
+    db.commit()
+    db.refresh(p)
+    return p
+
+
+@router.get("/{project_id}/timeline")
+def project_timeline(
+    project_id: int, limit: int = 50, db: Session = Depends(get_db)
+) -> dict[str, Any]:
+    p = db.get(Project, project_id)
+    if not p:
+        raise HTTPException(status_code=404, detail="Project not found")
+    snaps = list(
+        db.execute(
+            select(Snapshot)
+            .where(Snapshot.project_id == project_id)
+            .order_by(Snapshot.id.desc())
+            .limit(max(1, min(limit, 200)))
+        )
+        .scalars()
+        .all()
+    )
+    timeline = []
+    for s in reversed(snaps):
+        d = s.data or {}
+        api_list = d.get("api_list") or []
+        timeline.append(
+            {
+                "snapshot_id": s.id,
+                "created_at": s.created_at.isoformat() if s.created_at else None,
+                "scan_run_id": s.scan_run_id,
+                "file_count": d.get("file_count", 0),
+                "api_count": len(api_list),
+            }
+        )
+    patterns = list(
+        db.execute(
+            select(IssuePattern)
+            .where(IssuePattern.project_id == project_id)
+            .order_by(IssuePattern.hit_count.desc())
+            .limit(50)
+        )
+        .scalars()
+        .all()
+    )
+    return {
+        "project_id": project_id,
+        "snapshots": timeline,
+        "recurring_patterns": [
+            {
+                "issue_type": x.issue_type,
+                "fingerprint": x.fingerprint,
+                "hit_count": x.hit_count,
+                "last_seen_at": x.last_seen_at.isoformat() if x.last_seen_at else None,
+            }
+            for x in patterns
+        ],
+    }
+
+
+@router.get("/{project_id}/graph")
+def project_graph(project_id: int, db: Session = Depends(get_db)) -> dict[str, Any]:
+    p = db.get(Project, project_id)
+    if not p:
+        raise HTTPException(status_code=404, detail="Project not found")
+    sub = (
+        select(ScanRun)
+        .where(ScanRun.project_id == project_id, ScanRun.status == ScanStatus.completed)
+        .order_by(ScanRun.id.desc())
+        .limit(1)
+    )
+    run = db.execute(sub).scalar_one_or_none()
+    if not run or not run.artifacts:
+        return {
+            "project_id": project_id,
+            "nodes": [],
+            "import_sample": [],
+            "summary": None,
+        }
+    art = run.artifacts
+    return {
+        "project_id": project_id,
+        "scan_run_id": run.id,
+        "nodes": art.get("nodes") or [],
+        "import_sample": (art.get("import_edges") or [])[:200],
+        "summary": art.get("summary"),
+    }
 
 
 @router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)

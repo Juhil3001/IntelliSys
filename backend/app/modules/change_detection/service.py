@@ -34,6 +34,7 @@ def build_snapshot_data(db: Session, project: Project, scan: ScanRun) -> dict[st
                 "endpoint": a.endpoint,
                 "name": a.name,
                 "file_id": a.file_id,
+                "content_hash": a.content_hash,
             }
             for a in apis
         ],
@@ -67,24 +68,40 @@ def diff_snapshots(
     old: dict[str, Any] | None, new: dict[str, Any] | None
 ) -> dict[str, Any]:
     if not old and not new:
-        return {"added_apis": [], "removed_apis": [], "changed_files": 0}
+        return {"added_apis": [], "removed_apis": [], "changed_files": 0, "updated_apis": []}
     if not old:
         new_apis = new.get("api_list", []) if new else []
         return {
             "added_apis": new_apis,
             "removed_apis": [],
             "changed_files": new.get("file_count", 0) if new else 0,
+            "updated_apis": [],
         }
     if not new:
         return {
             "added_apis": [],
             "removed_apis": old.get("api_list", []),
             "changed_files": 0,
+            "updated_apis": [],
         }
     oa = {(_a["method"], _a["endpoint"]): _a for _a in old.get("api_list", [])}
     na = {(_a["method"], _a["endpoint"]): _a for _a in new.get("api_list", [])}
     added = [na[k] for k in na if k not in oa]
     removed = [oa[k] for k in oa if k not in na]
+    updated_apis: list[dict[str, Any]] = []
+    for k in oa:
+        if k in na:
+            h0 = oa[k].get("content_hash")
+            h1 = na[k].get("content_hash")
+            if h0 and h1 and h0 != h1:
+                updated_apis.append(
+                    {
+                        "method": k[0],
+                        "endpoint": k[1],
+                        "previous_hash": h0,
+                        "current_hash": h1,
+                    }
+                )
     of = set(old.get("file_paths", []))
     nf = set(new.get("file_paths", []))
     changed_files = len(of.symmetric_difference(nf))
@@ -92,4 +109,5 @@ def diff_snapshots(
         "added_apis": added,
         "removed_apis": removed,
         "changed_files": changed_files,
+        "updated_apis": updated_apis,
     }

@@ -16,6 +16,7 @@ from app.routes import (
     health,
     insights,
     issues,
+    integrations,
     monitoring,
     projects,
     scans,
@@ -61,3 +62,4 @@ app.include_router(issues.router, prefix="/issues", tags=["issues"])
 app.include_router(ai_insights_route.router, prefix="/ai", tags=["ai"])
 app.include_router(chat.router, prefix="/chat", tags=["chat"])
 app.include_router(automation.router, prefix="/automation", tags=["automation"])
+app.include_router(integrations.router, prefix="/integrations", tags=["integrations"])

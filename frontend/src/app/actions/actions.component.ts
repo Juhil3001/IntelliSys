@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { IntellisysApiService, Project } from '../intellisys-api.service';
+import { IntellisysApiService, Project, ScanRunOut } from '../intellisys-api.service';
 
 type ActionKey = 'scan' | 'sync' | 'recompute' | 'ai';
 
@@ -15,8 +15,12 @@ type ActionKey = 'scan' | 'sync' | 'recompute' | 'ai';
 export class ActionsComponent implements OnInit {
   selected: ActionKey = 'scan';
   busy = false;
+  /** Legacy one-line messages for sync / recompute. */
   lastResult = '';
   aiSummary = '';
+  resultError = '';
+  scanRun: ScanRunOut | null = null;
+  discoveredApiCount: number | null = null;
 
   readonly actions: { key: ActionKey; label: string; blurb: string; icon: string }[] = [
     { key: 'scan', label: 'Run scan', blurb: 'Start a repository scan, recompute, and snapshot (when applicable).', icon: 'radar' },
@@ -48,6 +52,9 @@ export class ActionsComponent implements OnInit {
   select(key: ActionKey) {
     this.selected = key;
     this.lastResult = '';
+    this.resultError = '';
+    this.scanRun = null;
+    this.discoveredApiCount = null;
   }
 
   private fmt(e: unknown): string {
@@ -63,13 +70,26 @@ export class ActionsComponent implements OnInit {
       return;
     }
     this.busy = true;
+    this.resultError = '';
+    this.scanRun = null;
+    this.discoveredApiCount = null;
+    this.lastResult = '';
     this.api.startScan(id).subscribe({
-      next: () => {
-        this.lastResult = 'Scan finished (recompute + snapshot where applicable).';
-        this.busy = false;
+      next: (run) => {
+        this.scanRun = run;
+        this.api.listApis(id).subscribe({
+          next: (apis) => {
+            this.discoveredApiCount = apis.length;
+            this.busy = false;
+          },
+          error: () => {
+            this.discoveredApiCount = null;
+            this.busy = false;
+          },
+        });
       },
       error: (e) => {
-        this.lastResult = this.fmt(e);
+        this.resultError = this.fmt(e);
         this.busy = false;
       },
     });
@@ -81,13 +101,16 @@ export class ActionsComponent implements OnInit {
       return;
     }
     this.busy = true;
+    this.resultError = '';
+    this.scanRun = null;
+    this.discoveredApiCount = null;
     this.api.syncAndScan(id, true).subscribe({
       next: (r) => {
-        this.lastResult = `Scan #${r['scan_run_id']}, issues ${r['issues_recomputed']}, commit ${r['last_commit_sha'] ?? '—'}`;
+        this.lastResult = `Scan run #${r['scan_run_id']}, issues recomputed: ${r['issues_recomputed'] ?? '—'}, commit: ${r['last_commit_sha'] ?? '—'}`;
         this.busy = false;
       },
       error: (e) => {
-        this.lastResult = this.fmt(e);
+        this.resultError = this.fmt(e);
         this.busy = false;
       },
     });
@@ -99,13 +122,16 @@ export class ActionsComponent implements OnInit {
       return;
     }
     this.busy = true;
+    this.resultError = '';
+    this.scanRun = null;
+    this.discoveredApiCount = null;
     this.api.recompute(id).subscribe({
       next: (r: { issues_created?: number }) => {
-        this.lastResult = `Issues updated: ${r?.issues_created ?? 0}`;
+        this.lastResult = `Issues updated (created/recomputed): ${r?.issues_created ?? 0}`;
         this.busy = false;
       },
       error: (e) => {
-        this.lastResult = this.fmt(e);
+        this.resultError = this.fmt(e);
         this.busy = false;
       },
     });
@@ -117,6 +143,7 @@ export class ActionsComponent implements OnInit {
       return;
     }
     this.busy = true;
+    this.resultError = '';
     this.api.generateAi(id).subscribe({
       next: (r) => {
         this.aiSummary = `${r.summary}\n\n${r.recommendation}`;
@@ -124,7 +151,7 @@ export class ActionsComponent implements OnInit {
         this.busy = false;
       },
       error: (e) => {
-        this.lastResult = this.fmt(e);
+        this.resultError = this.fmt(e);
         this.busy = false;
       },
     });

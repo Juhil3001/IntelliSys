@@ -1,0 +1,212 @@
+.data-page {
+  max-width: min(72rem, 100%);
+}
+
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.page-sub {
+  margin: var(--space-1) 0 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  max-width: 36rem;
+  line-height: 1.45;
+}
+
+.err-line {
+  margin: 0 0 var(--space-3);
+}
+
+.surface-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-3);
+  background: var(--color-surface-raised);
+  border: 0.5px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.search-field {
+  flex: 1;
+  min-width: 12rem;
+}
+
+.filter-input {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border-radius: 6px;
+  border: 0.5px solid var(--color-border-subtle);
+  background: var(--color-surface-deep);
+  color: var(--color-text);
+  font-size: 0.875rem;
+}
+
+.filter-input::placeholder {
+  color: var(--color-text-dim);
+}
+
+.count-pill {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-accent-purple);
+  white-space: nowrap;
+}
+
+.table-card {
+  border: 0.5px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface-raised);
+  overflow: hidden;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.data-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  text-align: left;
+  padding: 0.65rem 0.85rem;
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-dim);
+  background: var(--color-surface-deep);
+  border-bottom: 0.5px solid var(--color-border);
+}
+
+.data-table td {
+  padding: 0.65rem 0.85rem;
+  border-bottom: 0.5px solid var(--color-border);
+  vertical-align: middle;
+  color: var(--color-text);
+}
+
+.data-table tbody tr:hover {
+  background: var(--color-surface-hover);
+}
+
+.row-alt {
+  background: color-mix(in srgb, var(--color-surface-deep) 35%, transparent);
+}
+
+[data-theme='light'] .row-alt {
+  background: #f8fafc;
+}
+
+.th-narrow {
+  width: 4rem;
+}
+
+.th-method {
+  width: 6.5rem;
+}
+
+.th-action {
+  width: 6rem;
+  text-align: right;
+}
+
+.td-endpoint code {
+  font-size: 0.82rem;
+  word-break: break-all;
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.method-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  border-radius: 4px;
+  padding: 0.15rem 0.45rem;
+  text-transform: uppercase;
+}
+
+.method-badge.m-get {
+  background: color-mix(in srgb, var(--color-accent-teal) 18%, transparent);
+  color: var(--color-accent-teal);
+}
+
+.method-badge.m-post {
+  background: color-mix(in srgb, var(--color-accent-purple) 22%, transparent);
+  color: var(--color-accent-purple);
+}
+
+.method-badge.m-put {
+  background: color-mix(in srgb, var(--color-warning) 22%, transparent);
+  color: var(--color-warning);
+}
+
+.method-badge.m-delete {
+  background: color-mix(in srgb, var(--color-error) 18%, transparent);
+  color: var(--color-error);
+}
+
+.method-badge.m-default {
+  background: var(--color-ghost-bg);
+  color: var(--color-text-muted);
+}
+
+.link-ask-ai {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-accent-purple);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.link-ask-ai:hover {
+  text-decoration: underline;
+}
+
+.empty-state {
+  margin: 0;
+  padding: var(--space-5);
+  text-align: center;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.inline-link {
+  color: var(--color-accent-purple);
+  text-decoration: none;
+}
+
+.inline-link:hover {
+  text-decoration: underline;
+}

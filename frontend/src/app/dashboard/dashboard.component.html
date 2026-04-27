@@ -14,7 +14,7 @@
         class="hb-ecg-line"
         points="0,20 20,20 30,8 40,20 50,20 60,20 70,5 80,20 100,20 120,8 128,8 140,20 160,20 175,2 192,20 210,20 220,5 240,20 255,5 280,20 300,8 320,20 340,5 360,20 400,20"
         fill="none"
-        stroke="#7C3AED"
+        stroke="currentColor"
         stroke-width="1.5"
         stroke-linecap="round"
         stroke-linejoin="round"
@@ -30,6 +30,9 @@
       >
       <span class="hb-pill"
         ><span class="v">{{ mAvgLabel }}</span> <span class="l">Avg</span></span
+      >
+      <span class="hb-pill" *ngIf="mErrorRate != null" title="Error rate (last 24h, ingested calls)"
+        ><span class="v">{{ (mErrorRate * 100) | number: '1.0-1' }}%</span> <span class="l">Err</span></span
       >
     </div>
   </div>
@@ -152,11 +155,16 @@
           </td>
           <td class="td-meta">{{ r.lastCheck }}</td>
           <td>
-            <a routerLink="/chat" class="explain-btn" title="Open AI chat to explain this endpoint">
+            <a
+              [routerLink]="['/chat']"
+              [queryParams]="{ prompt: askAiPromptForEndpoint(r) }"
+              class="explain-btn"
+              title="Ask AI about this endpoint"
+            >
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"
                 ><circle cx="12" cy="12" r="9" /><path d="M9 9h.01M15 9h.01M8 14a4 4 0 0 0 8 0" />
               </svg>
-              Explain
+              Ask AI
             </a>
           </td>
         </tr>
@@ -167,35 +175,4 @@
     </ng-template>
   </div>
   <ng-template #noTable></ng-template>
-
-  <!-- AI insight -->
-  <div class="ai-card" *ngIf="projectId != null">
-    <div class="ai-hdr">
-      <div class="ai-ico" aria-hidden="true">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
-          <path d="M12 3l1.5 4.5H18l-4 3 1.5 4.5L12 16l-3.5 2.5L10 14l-4-3h4.5L12 3z" />
-        </svg>
-      </div>
-      <span class="ai-title">AI Insight</span>
-      <span class="ai-pill">Live Analysis</span>
-    </div>
-    <ng-container *ngIf="!aiSummary; else aiText">
-      <p class="ai-q">Why did <code class="ai-code-path">{{ aiQuestionEndpoint }}</code> slow down?</p>
-      <p class="ai-a">
-        <strong>Root cause:</strong> example only — use
-        <a routerLink="/actions" class="inline-link">Actions → AI insight</a> for your project. You can also run
-        <button type="button" class="link-btn" (click)="generateAi()">generate insight from here</button>
-        <span class="ai-cursor" aria-hidden="true"></span>
-      </p>
-      <div class="diff-blk" aria-label="Example fix">
-        <div class="diff-g">-- recommended migration</div>
-        <div class="diff-r">- SELECT * FROM users ORDER BY created_at</div>
-        <div class="diff-g">+ CREATE INDEX idx_users_created ON users(created_at);</div>
-        <div class="diff-g">+ SELECT * FROM users ORDER BY created_at</div>
-      </div>
-    </ng-container>
-    <ng-template #aiText>
-      <pre class="ai-pre">{{ aiSummary }}</pre>
-    </ng-template>
-  </div>
 </div>

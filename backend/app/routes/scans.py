@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.models import Project, ScanRun
-from app.modules.project_pipeline import execute_project_scan_pipeline
+from app.modules.project_pipeline import execute_project_scan_pipeline, finalize_completed_scan
 from app.modules.scanner import run_scan
 from app.schemas.scan import ScanRequest, ScanRunOut
 
@@ -31,9 +31,14 @@ def start_scan(body: ScanRequest, db: Session = Depends(get_db)) -> ScanRun:
 
     root = body.source_root or p.root_path
     try:
-        return run_scan(db, p, root)
+        run = run_scan(db, p, root)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
+    finalize_completed_scan(db, p, run, with_snapshot=body.with_snapshot)
+    r2 = db.get(ScanRun, run.id)
+    if not r2:
+        raise HTTPException(status_code=500, detail="Scan run missing after finalize")
+    return r2
 
 
 @router.get("/{scan_id}", response_model=ScanRunOut)

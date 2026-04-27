@@ -18,6 +18,8 @@ export class ProjectsComponent implements OnInit {
   defaultBranch = 'main';
   busy = false;
   lastAction = '';
+  /** Alert webhook URL for the active project (Slack/Teams generic incoming). */
+  alertWebhook = '';
 
   constructor(protected api: IntellisysApiService) {}
 
@@ -54,12 +56,37 @@ export class ProjectsComponent implements OnInit {
   }
 
   refreshProjects() {
-    this.api.listProjects().subscribe((p) => (this.projects = p));
+    this.api.listProjects().subscribe((p) => {
+      this.projects = p;
+      const ap = this.activeProject;
+      this.alertWebhook = ap?.alert_webhook_url ?? '';
+    });
   }
 
   useProject(id: number) {
     this.api.setProjectId(id);
     this.lastAction = `Active project: ${id}`;
+    const ap = this.projects.find((x) => x.id === id);
+    this.alertWebhook = ap?.alert_webhook_url ?? '';
+  }
+
+  saveAlertWebhook() {
+    const id = this.projectId;
+    if (id == null) {
+      return;
+    }
+    this.busy = true;
+    this.api.patchProject(id, { alert_webhook_url: this.alertWebhook.trim() || null }).subscribe({
+      next: () => {
+        this.refreshProjects();
+        this.lastAction = 'Saved alert webhook URL';
+        this.busy = false;
+      },
+      error: (e) => {
+        this.lastAction = this.fmtErr(e);
+        this.busy = false;
+      },
+    });
   }
 
   createProject() {

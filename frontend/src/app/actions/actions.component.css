@@ -1,6 +1,101 @@
 .act-page {
   max-width: 56rem;
 }
+
+.act-header {
+  margin-bottom: 0.35rem;
+}
+
+.act-lead {
+  margin: 0.25rem 0 0;
+  max-width: 36rem;
+  line-height: 1.45;
+}
+
+.inline-link {
+  color: var(--color-accent-purple);
+  text-decoration: none;
+}
+
+.inline-link:hover {
+  text-decoration: underline;
+}
+
+.surface-result {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius);
+  border: 0.5px solid var(--color-border);
+  background: var(--color-surface-deep);
+}
+
+.result-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  margin: 0 0 0.65rem;
+}
+
+.result-title.result-err {
+  color: var(--color-error);
+}
+
+.result-dl {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.result-dl > div {
+  display: grid;
+  grid-template-columns: 8.5rem 1fr;
+  gap: 0.5rem;
+  align-items: start;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 520px) {
+  .result-dl > div {
+    grid-template-columns: 1fr;
+  }
+}
+
+.result-dl dt {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.result-dl dd {
+  margin: 0;
+  color: var(--color-text);
+}
+
+.result-dl .mono {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+.result-dl .wrap {
+  word-break: break-all;
+}
+
+.result-err-txt {
+  color: var(--color-error);
+}
+
+.result-pre {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: var(--font-mono);
+  color: var(--color-text);
+}
 .act-layout {
   display: flex;
   flex-direction: row;
@@ -33,9 +128,9 @@
   text-align: left;
   padding: 0.5rem 0.6rem;
   border-radius: 8px;
-  border: 0.5px solid var(--app-border, #21262d);
-  background: var(--color-surface, #0f1623);
-  color: var(--text-muted, #8b949e);
+  border: 0.5px solid var(--color-border);
+  background: var(--color-surface-raised);
+  color: var(--color-text-muted);
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
@@ -44,26 +139,26 @@
     color 0.12s;
 }
 .act-nav-btn:hover {
-  background: #161b22;
-  color: #e6edf3;
+  background: var(--color-surface-hover);
+  color: var(--color-text);
 }
 .act-nav-btn.on {
-  background: #1a1040;
-  border-color: #4c1d95;
-  color: #c4b5fd;
+  background: color-mix(in srgb, var(--color-accent-purple) 18%, var(--color-surface-deep));
+  border-color: color-mix(in srgb, var(--color-accent-purple) 45%, var(--color-border));
+  color: var(--color-accent-purple);
 }
 .act-ico {
   width: 20px;
   height: 20px;
   border-radius: 5px;
-  background: #161b22;
-  border: 0.5px solid #30363d;
+  background: var(--color-ghost-bg);
+  border: 0.5px solid var(--color-border-subtle);
   flex-shrink: 0;
   position: relative;
 }
 .act-nav-btn.on .act-ico {
-  background: #3b2b6a;
-  border-color: #7c3aed;
+  background: color-mix(in srgb, var(--color-accent-purple) 22%, transparent);
+  border-color: var(--color-accent-purple);
 }
 .act-ico::after {
   content: '✦';
@@ -76,8 +171,8 @@
   opacity: 0.6;
 }
 .act-panel {
-  background: var(--color-surface, #0f1623);
-  border: 0.5px solid var(--app-border, #21262d);
+  background: var(--color-surface-raised);
+  border: 0.5px solid var(--color-border);
   border-radius: 8px;
   padding: 1rem 1.1rem;
   min-height: 180px;
@@ -86,7 +181,7 @@
   font-size: 1rem;
   font-weight: 600;
   margin: 0 0 0.35rem;
-  color: var(--text-primary, #e6edf3);
+  color: var(--color-text);
 }
 .act-blurb {
   margin: 0 0 1rem;
@@ -110,7 +205,4 @@
 .act-result {
   margin-top: 0.9rem;
   font-size: 0.9rem;
-}
-.inline-link {
-  color: #a78bfa;
 }

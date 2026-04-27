@@ -29,15 +29,17 @@ def chat_message(
     db.add(ChatMessage(project_id=project_id, role="user", content=body.message))
     db.commit()
 
-    if not settings.openai_api_key.strip():
-        reply = "OpenAI is not configured. Set OPENAI_API_KEY in the environment for answers."
+    key = settings.openai_api_key_effective
+    if not key:
+        reply = "OpenAI is not configured. Set OPENAI_API_KEY in backend/.env or the process environment, then restart the API."
     else:
         from openai import OpenAI
 
-        client = OpenAI(api_key=settings.openai_api_key)
+        client = OpenAI(api_key=key)
         context = build_project_context(db, project_id)
+        model = (settings.ai_issues_model or "gpt-4o-mini").strip() or "gpt-4o-mini"
         resp = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=model,
             messages=[
                 {
                     "role": "system",

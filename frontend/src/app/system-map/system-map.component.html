@@ -1,0 +1,119 @@
+<div class="page map-page">
+  <header class="map-head">
+    <h1 class="page-title">System map</h1>
+    <p class="text-muted map-lead">
+      Dependency nodes, file samples, and Python import edges from the latest <strong>completed</strong> scan.
+    </p>
+  </header>
+
+  <div class="surface empty-project" *ngIf="api.projectId() == null">
+    <p class="text-muted" style="margin: 0">Select a project on <a routerLink="/projects" class="inline-link">Projects</a> first.</p>
+  </div>
+
+  <p class="text-muted err-line" *ngIf="error">{{ error }}</p>
+  <p *ngIf="api.projectId() != null && loading" class="text-muted">Loading…</p>
+
+  <ng-container *ngIf="api.projectId() != null && !loading">
+    <div class="surface empty-state-card" *ngIf="!hasArtifacts && !error">
+      <p class="text-muted" style="margin: 0">
+        No graph data yet. Run a scan from
+        <a routerLink="/actions" class="inline-link">Actions</a>
+        and wait for it to complete — artifacts are attached to the latest completed scan.
+      </p>
+    </div>
+
+    <ng-container *ngIf="hasArtifacts">
+      <div class="stat-row" *ngIf="summary">
+        <div class="stat-chip">
+          <span class="stat-val">{{ summary.file_count ?? '—' }}</span>
+          <span class="stat-lbl">Files indexed</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-val">{{ summary.api_count ?? '—' }}</span>
+          <span class="stat-lbl">APIs</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-val">{{ summary.package_nodes ?? '—' }}</span>
+          <span class="stat-lbl">Package nodes</span>
+        </div>
+        <div class="stat-chip" *ngIf="scanRunId != null">
+          <span class="stat-val mono">#{{ scanRunId }}</span>
+          <span class="stat-lbl">Scan run</span>
+        </div>
+      </div>
+
+      <div class="surface table-section" *ngIf="packageNodes().length">
+        <h2 class="section-title">Lockfile / package nodes</h2>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Kind</th>
+                <th>Label</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let n of packageNodes() | slice: 0:80; let odd = odd" [class.row-alt]="odd">
+                <td><span class="kind-pill">{{ n.kind }}</span></td>
+                <td class="mono wrap">{{ n.label }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="surface table-section" *ngIf="fileNodes().length">
+        <h2 class="section-title">Sample file nodes (first 40)</h2>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Path</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let n of fileNodes() | slice: 0:40; let odd = odd" [class.row-alt]="odd">
+                <td class="mono wrap">{{ n.label }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="surface table-section">
+        <h2 class="section-title">Python import sample</h2>
+        <div class="table-scroll" *ngIf="importSample.length">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>File</th>
+                <th>Import root</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let e of importSample | slice: 0:60; let odd = odd" [class.row-alt]="odd">
+                <td class="mono wrap">{{ e.from_file }}</td>
+                <td><code>{{ importModule(e) }}</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p *ngIf="!importSample.length" class="text-muted" style="margin: 0">No Python imports indexed in this scan.</p>
+      </div>
+
+      <div class="viz-wrap surface" *ngIf="importSample.length">
+        <h2 class="section-title">Import edges (preview)</h2>
+        <p class="text-muted viz-hint">Each line: file → imported top-level module.</p>
+        <ul class="edge-list">
+          <li *ngFor="let e of importSample | slice: 0:24">
+            <span class="mono edge-from"
+              >{{ e.from_file | slice: 0:48 }}{{ (e.from_file || '').length > 48 ? '…' : '' }}</span
+            >
+            <span class="edge-arrow" aria-hidden="true">→</span>
+            <code class="edge-to">{{ importModule(e) }}</code>
+          </li>
+        </ul>
+      </div>
+    </ng-container>
+  </ng-container>
+</div>
